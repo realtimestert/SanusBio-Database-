@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Medical Info` (
   `Coefficient of Inbreeding` VARCHAR(45) NULL,
   `Weight Loss/Gain` VARCHAR(45) NULL,
   `Lifetime % Litters/Mating` VARCHAR(45) NULL,
+  -- needs foreign keys to populate data
   PRIMARY KEY (`table1_id`))
 ENGINE = InnoDB;
 
@@ -40,7 +41,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `SanusBio`.`Cleaning Records` (
   `Cleaning Records_id` INT NOT NULL,
   `ID` INT NULL,
-  `Serviced By` VARCHAR(45) NULL,
+  -- foreign key to employee `Serviced By` VARCHAR(45) NULL,
   `Time of Day` ENUM('AM', 'PM') NULL,
   `Moderate or Strong Urea Odor` VARCHAR(45) NULL,
   `Trays Washed` VARCHAR(45) NULL,
@@ -67,7 +68,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `SanusBio`.`Estrus & Mating Summary` (
   `Estrus & Mating Summary_id` INT NOT NULL,
-  `Animal ID` VARCHAR(45) NULL,
+  -- foreign key to aninmals `Animal ID` VARCHAR(45) NULL,
   `Mating Restriction` VARCHAR(45) NULL,
   `Unconfirmed Estrus` DATE NULL,
   `Confirmed Estrus Start` DATE NULL,
@@ -76,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Estrus & Mating Summary` (
   `Male Cage Mates` VARCHAR(45) NULL,
   `Flag Cage Mates` ENUM('0', '1') NULL,
   `Last Mating Date` DATE NULL,
-  `Mating History` VARCHAR(500) NULL,
+  `Mating History` VARCHAR(500) NULL, --Maybe put under the individual animal
   `Male/Female Conflict` ENUM('0', '1') NULL,
   `Created` DATE NULL,
   `Created By` VARCHAR(45) NULL,
@@ -91,7 +92,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `SanusBio`.`Estrus Check Log` (
   `Estrus Check Log_id` INT NOT NULL,
   `ID` VARCHAR(45) NULL,
-  `Animal ID` VARCHAR(45) NULL,
+  -- JILL FOREIGN KEY `Animal ID` VARCHAR(45) NULL,
   `Estrus Status` VARCHAR(45) NULL,
   `Vulva Description` VARCHAR(45) NULL,
   `Formed Observation` DATE NULL,
@@ -118,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Females to Mate` (
   `Coeffiecient of Inbreeding` VARCHAR(45) NULL,
   `Genealogy` VARCHAR(500) NULL,
   `Kits` VARCHAR(45) NULL,
+  -- JILL ID
   PRIMARY KEY (`Females to Mate_id`))
 ENGINE = InnoDB;
 
@@ -128,11 +130,11 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `SanusBio`.`Litter Log` (
   `Litter Log_id` INT NOT NULL,
   `Litter ID` VARCHAR(45) NULL,
-  `Mating ID` VARCHAR(45) NULL,
-  `Jill` VARCHAR(45) NULL,
-  `Jill ID` VARCHAR(45) NULL,
-  `Hob` VARCHAR(45) NULL,
-  `Hob ID` VARCHAR(45) NULL,
+  -- foreign key `Mating ID` VARCHAR(45) NULL,
+  -- foreign key `Jill` VARCHAR(45) NULL,
+  -- foreign key `Jill ID` VARCHAR(45) NULL,
+  -- foreign key `Hob` VARCHAR(45) NULL,
+  -- foreign key `Hob ID` VARCHAR(45) NULL,
   `Litter Date` DATE NULL,
   `From Most Recent Mating` ENUM('1', '0') NULL,
   `Kit count` INT NULL,
@@ -145,10 +147,10 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Litter Log` (
   `Total Litter Size` INT NULL,
   `Recent Nest Count` INT NULL,
   `Jill Removed From Litter Date` DATE NULL,
-  `Need IDs` ENUM('0', '1') NULL,
+  `Need IDs` INT NULL,
   `Anomalies and Notes` VARCHAR(500) NULL,
   `Event History` VARCHAR(500) NULL,
-  `Address` VARCHAR(45) NULL,
+  -- Room ID and other things `Address` VARCHAR(45) NULL,
   `Start Kit on Feed (21 days)` DATE NULL,
   `Projected Wean Date (6 weeks)` DATE NULL,
   `Dark Cycle Date (4mo)` DATE NULL,
@@ -161,9 +163,11 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Litter Log` (
   `Create Individuals` VARCHAR(45) NULL,
   `Collect Litter Weight` VARCHAR(45) NULL,
   `Last Weigh Date` DATE NULL,
-  `Growth Rate (g/week)` INT NULL,
+  --Calculate growth rate from other variables 
+  --`Growth Rate (g/week)` INT NULL,
   `Functioning Nipples` INT NULL,
-  `Nipple - Kit Count` INT NULL,
+  --Calculate nipple/kit count
+  --`Nipple - Kit Count` INT NULL,
   `Support Feeding` VARCHAR(45) NULL,
   `Support Feed Type` VARCHAR(45) NULL,
   `Today's Feed Count` INT NULL,
@@ -287,12 +291,17 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Jill` (
   `Litter Date` DATE NULL,
   -- here
   -- `(calc)Litter Age` INT NULL,
-  `Jill ID` VARCHAR(8) NOT NULL,
-  `Purchase ID` VARCHAR(45) NULL,
+  -- foreign key `Jill ID` VARCHAR(8) NOT NULL,
+  -- foreign key `Purchase ID` VARCHAR(45) NULL,
   `Created by` VARCHAR(45) NULL,
   `Dead` ENUM('0', '1') NULL,
   PRIMARY KEY (`Jill_id`))
 ENGINE = InnoDB;
+
+---------
+  -- Room Table needs to have its own ids
+  --need to get rooms and addresses
+  --IDs are attached to rooms
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
