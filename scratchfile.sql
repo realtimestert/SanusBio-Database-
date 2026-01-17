@@ -142,12 +142,6 @@ END;
 /
 
 
-
-
-
-
-
-
 DECLARE
     /* Declare a list of numbers. */
     TYPE list IS TABLE OF NUMBER;
@@ -295,4 +289,16 @@ DECLARE
     END LOOP;
     CLOSE c;
 END;
-/    
+/
+
+SELECT      i.item_title
+FROM        item i 
+FETCH FIRST 1 ROWS ONLY;
+
+SELECT
+    d.name AS database_name,
+    i.instance_name,
+    i.host_name
+FROM v$database d
+CROSS JOIN v$instance i;
+/
