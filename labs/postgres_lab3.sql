@@ -1,32 +1,19 @@
-/* Declare a session variable. */
-SET SESSION "videodb.whom" = '';
-
-/* Test case when session bind variable is null. */
 DO
 $$
+DECLARE
+  lv_counter INTEGER := 1;
 BEGIN
-  /* Print a session variable value or the default value. */
-  IF current_setting('videodb.whom') IS NOT NULL THEN
-    RAISE NOTICE '[%]', current_setting('videodb.whom');
-  ELSE
-    RAISE NOTICE '[%]','Hello World!';
-  END IF;
-END;
-$$;
+  /* Ascending loops. */
+  WHILE lv_counter < 11 LOOP
+    RAISE NOTICE '[%]', lv_counter;
+    lv_counter = lv_counter + 1;
+  END LOOP;
 
-/* Set the session bind variable with a value. */
-SET SESSION <<<element>>>;
-
-
-/* Test case when session bind variable is not null. */
-DO
-$$
-BEGIN
-  /* Print a session variable value or the default value. */
-  IF current_setting('videodb.whom') IS NOT NULL THEN
-    RAISE NOTICE '[%]', current_setting('videodb.whom');
-  ELSE
-    RAISE NOTICE '[%]','Hello World!';
-  END IF;
+  /* Descending loop. */
+  lv_counter := 10;
+  WHILE lv_counter > 0 LOOP
+    RASIE NOTICE '[%]', lv_counter;
+    lv_counter := lv_counter - 1;
+  END LOOP;
 END;
 $$;

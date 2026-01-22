@@ -1,25 +1,21 @@
-SET SERVEROUTPUT ON
+SET SERVEROUTPUT ON SIZE UNLIMITED
 
-VARIABLE whom VARCHAR2(50)
-
-/* After you declare a variable in SQL*Plus, write an anonymous block that 
-uses an if-statement to determine whether the :whom variable is null or not. 
-When it is null you print "Hello World!" and when it is not null, you print 
-"Hello <someOne>!". */
-
+DECLARE
+    lv_counter NUMBER := 1;
 BEGIN
-    IF :whom IS NULL THEN
-        dbms_output.put_line('Hello World!');
-    ELSE
-        dbms_output.put_line('Hello ' || :whom || '!');
-    END IF;
-END;
-/
+    -- Ascending Loop
+    WHILE (lv_counter < 11) LOOP
+        dbms_output.put_line('['||lv_counter||']');
+        lv_counter := lv_counter + 1;
+        EXIT WHEN lv_counter = 11;
+    END LOOP;
 
-/* Assign a value to the :whom session bind variable in a PL/SQL anonymous block, 
-like this: */
-
-BEGIN
-    :whom := 'Gideon';
+    -- Descending Loop
+    lv_counter := 10;
+    LOOP
+        dbms_output.put_line('['||lv_counter||']');
+        lv_counter := lv_counter -1;
+        EXIT WHEN lv_counter = 0;
+    END LOOP;
 END;
 /
