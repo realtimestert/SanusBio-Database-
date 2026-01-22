@@ -20,30 +20,30 @@ USE `SanusBio` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `SanusBio`.`Ferret_QR005` (
   `Ferret_QR005_id` INT NOT NULL,
-  `Animal_ID` INT NOT NULL,
-  `Ferret_Name` VARCHAR(45) NOT NULL,
-  `RFID_Change_Log` VARCHAR(1000) NULL,
-  `Location_Change_Log` VARCHAR(1000) NULL,
+  `animal_id` INT NOT NULL,
+  `ferret_name` VARCHAR(45) NOT NULL,
+  `rfid_change_log` VARCHAR(1000) NULL,
+  `location_change_log` VARCHAR(1000) NULL,
   -- Foreign Key `Address` VARCHAR(45) NULL,
-  `Birth_Date` DATE NOT NULL,
-  `Death_Date` DATE NULL,
-  `Acquisition_By` VARCHAR(45) NULL,
-  `Weight` INT NOT NULL,
-  `Next_Rabies_Vaccine_Due` DATE NOT NULL,
-  `Description` VARCHAR(45) NULL,
-  `Mother` VARCHAR(45) NULL,
-  `Father` VARCHAR(45) NULL,
-  `Mother_ID` VARCHAR(45) NULL,
-  `Father_ID` VARCHAR(45) NULL,
-  `Supplier` VARCHAR(45) NULL,
-  `Last_Move_to_Winter` DATE NULL,
-  `Last_Winter_Cycle_Completion` DATE NULL,
-  `Last_Move_to_Summer` DATE NULL,
+  `birth_date` DATE NOT NULL,
+  `death_date` DATE NULL,
+  `acquisition_by` VARCHAR(45) NULL,
+  `weight` INT NOT NULL,
+  `next_rabies_vaccine_due` DATE NOT NULL,
+  `description` VARCHAR(45) NULL,
+  `mother` VARCHAR(45) NULL,
+  `father` VARCHAR(45) NULL,
+  `mother_id` VARCHAR(45) NULL,
+  `father_id` VARCHAR(45) NULL,
+  `supplier` VARCHAR(45) NULL,
+  `last_move_to_winter` DATE NULL,
+  `last_winter_cycle_completion` DATE NULL,
+  `last_move_to_summer` DATE NULL,
   `move_in` DATETIME NULL,
   `move_out` DATETIME NULL,
   `winter_start` DATETIME NULL,
   `winter_end` DATETIME NULL,
-  `Time_in_Winter` INT
+  `time_in_winter` INT
     GENERATED ALWAYS AS (
       GREATEST(
         0,
@@ -53,143 +53,144 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Ferret_QR005` (
         )
       )
     ) STORED,
+  
   /* Age in weeks – stops aging after death */
-  `Age_wks` INT
+  `age_wks` INT
     GENERATED ALWAYS AS (
       FLOOR(
         DATEDIFF(
-          COALESCE(`Death_Date`, CURDATE()),
-          `Birth_Date`
+          COALESCE(`death_date`, CURDATE()),
+          `birth_date`
         ) / 7
       )
     ) VIRTUAL,
-  `Distribution_Date` DATE NULL,
-  `Clip_Nails` ENUM('0','1') NULL,
-  `Bath` ENUM('0','1') NULL,
-  `Animal_RFID` VARCHAR(15) NULL,
-  `Litter_ID` VARCHAR(7) NULL,
-  `Litter_Date` DATE NULL,
-  `Hob_Code` VARCHAR(8) NOT NULL,
-  `Purchase_ID` VARCHAR(45) NULL,
-  `Created_By` VARCHAR(45) NULL,
-  `Dead` ENUM('0','1') NULL,
+  `distribution_date` DATE NULL,
+  `clip_nails` ENUM('0','1') NULL,
+  `bath` ENUM('0','1') NULL,
+  `animal_rfid` VARCHAR(15) NULL,
+  `litter_id` VARCHAR(7) NULL,
+  `litter_date` DATE NULL,
+  `hob_code` VARCHAR(8) NOT NULL,
+  `purchase_id` VARCHAR(45) NULL,
+  `created_by` VARCHAR(45) NULL,
+  `dead` ENUM('0','1') NULL,
   PRIMARY KEY (`Ferret_QR005_id`)
 ) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`.`Medical Info`
+-- Table `SanusBio`.`medical_info`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Medical_Info` (
-  `Medical_Info_id` INT NOT NULL,
-  `Rabies Vaccination Date` DATE NULL,
-  `Rabies Vaccination Date Last` DATE NULL,
-  `Distemper Vaccination Date - Last` DATE NULL,
-  `Distember Vaccination Date - Previous` DATE NULL,
-  `Castration/Spay Date` DATE NULL,
-  `Castrated/Spayed` ENUM('y', 'n') NULL,
-  `Descent Date` DATE NULL,
-  `Test Collected - Last 30 Days` VARCHAR(255) NULL,
-  `Test Result - Last 30 Days` VARCHAR(255) NULL,
+CREATE TABLE IF NOT EXISTS `SanusBio`.`medical_info` (
+  `medical_info_id` INT NOT NULL,
+  `rabies_vaccination_date` DATE NULL,
+  `rabies_vaccination_date_last` DATE NULL,
+  `distemper_vaccination_date_last` DATE NULL,
+  `distember_vaccination_date_previous` DATE NULL,
+  `castration_or_spay_date` DATE NULL,
+  `castrated_or_spayed` ENUM('y', 'n') NULL,
+  `descent_date` DATE NULL,
+  `test_collected_last_30_days` VARCHAR(255) NULL,
+  `test_result_last_30_days` VARCHAR(255) NULL,
   -- Big Calculation `Coefficient of Inbreeding` VARCHAR(45) NULL,
-  `Weight Loss/Gain` VARCHAR(45) NULL,
-  `Lifetime % Litters/Mating` VARCHAR(45) NULL,
-  `Surgical_Procedure_Log` VARCHAR(1000) NULL,
+  `weight_loss_or_gain` VARCHAR(45) NULL,
+  `lifetime_%_litters/mating` VARCHAR(45) NULL,
+  `surgical_procedure_log` VARCHAR(1000) NULL,
   `dead` ENUM('y', 'n'),
-  `Date_Of_Death` DATE NULL,
-  `Cause_Of_Death` VARCHAR(255) NULL,
-  `Treatments` VARCHAR(255) NULL,
-  `Exam_Log` VARCHAR(1000) NULL,
-  `Last_Exam_Date` DATE NULL,
-  `Orders` VARCHAR(200) NULL,
+  `date_of_death` DATE NULL,
+  `cause_of_death` VARCHAR(255) NULL,
+  `treatments` VARCHAR(255) NULL,
+  `exam_log` VARCHAR(1000) NULL,
+  `last_exam_date` DATE NULL,
+  `orders` VARCHAR(200) NULL,
   -- needs foreign keys to populate data
-  PRIMARY KEY (`Medical_Info_id`))
+  PRIMARY KEY (`medical_info_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`,`Address`
+-- Table `SanusBio`,`address`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Address` (
-  `Address_id` INT NOT NULL,
-  `Room_id` INT NOT NULL,
-  `Cage_Address` VARCHAR(5),
-  `Room_Lighting` VARCHAR(45) NULL,
-  `Maintenance` VARCHAR(255) NULL,
-  PRIMARY KEY (`Address_id`))
+CREATE TABLE IF NOT EXISTS `SanusBio`.`address` (
+  `address_id` INT NOT NULL,
+  `room_id` INT NOT NULL,
+  `cage_address` VARCHAR(5),
+  `room_lighting` VARCHAR(45) NULL,
+  `maintenance` VARCHAR(255) NULL,
+  PRIMARY KEY (`address_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`,`Health_Log`
+-- Table `SanusBio`,`health_log`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Health_Log` (
-  `Health_Log_id` INT NOT NULL,
-  `Nail_Trim_Log` VARCHAR(1000),
-  `Weight_Log` VARCHAR(1000),
-  `Bath_History` VARCHAR(1000),
-  PRIMARY KEY (`Health_Log_id`))
+CREATE TABLE IF NOT EXISTS `SanusBio`.`health_log` (
+  `health_log_id` INT NOT NULL,
+  `nail_trim_log` VARCHAR(1000),
+  `weight_log` VARCHAR(1000),
+  `bath_history` VARCHAR(1000),
+  PRIMARY KEY (`health_log_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`.`Estrus & Mating Summary`
+-- Table `SanusBio`.`estrus_&_mating_summary`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Estrus & Mating Summary` (
-  `Estrus & Mating Summary_id` INT NOT NULL,
-  -- foreign key to aninmals `Animal ID` VARCHAR(45) NULL,
-  `Mating Restriction` VARCHAR(45) NULL,
-  `Unconfirmed Estrus` DATE NULL,
-  `Confirmed Estrus Start` DATE NULL,
-  `Days in Estrus` VARCHAR(45) NULL,
-  `Estimated Mate Date` DATE NULL,
-  `Male Cage Mates` VARCHAR(45) NULL,
-  `Flag Cage Mates` ENUM('0', '1') NULL,
-  `Last Mating Date` DATE NULL,
-  `Mating History` VARCHAR(500) NULL, 
-  `Male/Female Conflict` ENUM('0', '1') NULL,
-  `Created` DATE NULL,
-  `Created By` VARCHAR(45) NULL,
-  `Modified` DATE NULL,
-  PRIMARY KEY (`Estrus & Mating Summary_id`))
+CREATE TABLE IF NOT EXISTS `SanusBio`.`estrus_&_mating_summary` (
+  `estrus_&_mating_summary_id` INT NOT NULL,
+  -- foreign key to aninmals `animal_id` VARCHAR(45) NULL,
+  `mating_restriction` VARCHAR(45) NULL,
+  `unconfirmed_estrus` DATE NULL,
+  `confirmed_estrus_start` DATE NULL,
+  `days_in_estrus` VARCHAR(45) NULL,
+  `estimated_mate_date` DATE NULL,
+  `male_cage_mates` VARCHAR(45) NULL,
+  `flag_cage_mates` ENUM('0', '1') NULL,
+  `last_mating_date` DATE NULL,
+  `mating_history` VARCHAR(500) NULL, 
+  `male_female_conflict` ENUM('0', '1') NULL,
+  `created` DATE NULL,
+  `created_by` VARCHAR(45) NULL,
+  `modified` DATE NULL,
+  PRIMARY KEY (`estrus_&_mating_summary_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`.`Estrus Check Log`
+-- Table `SanusBio`.`estrus_check_log`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Estrus Check Log` (
-  `Estrus Check Log_id` INT NOT NULL,
-  `ID` VARCHAR(45) NULL,
+CREATE TABLE IF NOT EXISTS `SanusBio`.`estrus_check_log` (
+  `estrus_check_log_id` INT NOT NULL,
+  -- `ID` VARCHAR(45) NULL,
   -- JILL FOREIGN KEY `Animal ID` VARCHAR(45) NULL,
-  `Estrus Status` VARCHAR(45) NULL,
-  `Vulva Description` VARCHAR(45) NULL,
-  `Formed Observation` DATE NULL,
-  `Comments` VARCHAR(255) NULL,
-  `Reported By` VARCHAR(45) NULL,
-  `Created Date` DATE NULL,
-  `Created By` VARCHAR(45) NULL,
-  `In Estrus` ENUM('0', '1') NULL,
-  PRIMARY KEY (`Estrus Check Log_id`))
+  `estrus_status` VARCHAR(45) NULL,
+  `vulva_description` VARCHAR(45) NULL,
+  `formed_observation` DATE NULL,
+  `comments` VARCHAR(255) NULL,
+  `reported_by` VARCHAR(45) NULL,
+  `created_date` DATE NULL,
+  `created_by` VARCHAR(45) NULL,
+  `in_estrus` ENUM('0', '1') NULL,
+  PRIMARY KEY (`estrus_check_log_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`.`Females to Mate`
+-- Table `SanusBio`.`females_to_mate`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Females to Mate` (
-  `Females to Mate_id` INT NOT NULL,
-  `Primary` VARCHAR(45) NULL,
-  `Location Link` VARCHAR(45) NULL,
-  `Mating Link` VARCHAR(45) NULL,
-  `Date Identified` DATE NULL,
-  `Recent History` VARCHAR(300) NULL,
-  `Address` VARCHAR(45) NULL,
-  `Coeffiecient of Inbreeding` VARCHAR(45) NULL,
-  `Genealogy` VARCHAR(500) NULL,
-  `Kits` VARCHAR(45) NULL,
+CREATE TABLE IF NOT EXISTS `SanusBio`.`females_to_mate` (
+  `females_to_mate_id` INT NOT NULL,
+  `primary` VARCHAR(45) NULL,
+  -- Link to other tables `location_link` VARCHAR(45) NULL,
+  `mating_link` VARCHAR(45) NULL,
+  `date_identified` DATE NULL,
+  `recent_history` VARCHAR(300) NULL,
+  `address` VARCHAR(45) NULL,
+  -- Calculate `Coeffiecient_of_Inbreeding` VARCHAR(45) NULL,
+  `genealogy` VARCHAR(500) NULL,
+  `kits` VARCHAR(45) NULL,
   -- Ferret ID Foreign Key
-  PRIMARY KEY (`Females to Mate_id`))
+  PRIMARY KEY (`females_to_mate_id`))
 ENGINE = InnoDB;
 
 
