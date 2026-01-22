@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `SanusBio`.`Medical_Info` (
   `Weight Loss/Gain` VARCHAR(45) NULL,
   `Lifetime % Litters/Mating` VARCHAR(45) NULL,
   `Surgical_Procedure_Log` VARCHAR(1000) NULL,
+  `dead` ENUM('y', 'n'),
   `Date_Of_Death` DATE NULL,
   `Cause_Of_Death` VARCHAR(255) NULL,
   `Treatments` VARCHAR(255) NULL,
@@ -193,59 +194,85 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `SanusBio`.`Litter Log`
+-- Table `SanusBio`.`litter_log`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SanusBio`.`Litter Log` (
-  `Litter Log_id` INT NOT NULL,
-  `Litter ID` VARCHAR(45) NULL,
-  `Litter Date` DATE NULL,
-  `From Most Recent Mating` ENUM('1', '0') NULL,
-  `Kit count` INT NULL,
-  `Stillborn` INT NULL,
-  `Infant Deaths` INT NULL,
-  `Surviving Litter Count` INT NULL,
-  `Kits Transferred In` INT NULL,
-  `Kits Transferred Out` INT NULL,
-  `Transfer Date` DATE NULL,
-  `Total Litter Size` INT NULL,
-  `Recent Nest Count` INT NULL,
-  `Jill Removed From Litter Date` DATE NULL,
-  `Need IDs` INT NULL,
-  `Anomalies and Notes` VARCHAR(500) NULL,
-  `Event History` VARCHAR(500) NULL,
-  -- Room ID and other things `Address` VARCHAR(45) NULL,
-  `Start Kit on Feed (21 days)` DATE NULL,
-  `Projected Wean Date (6 weeks)` DATE NULL,
-  `Dark Cycle Date (4mo)` DATE NULL,
-  `Event Summary` VARCHAR(500) NULL,
-  `Transfer Notes` VARCHAR(500) NULL,
-  `Transfer Jill-Source` VARCHAR(45) NULL,
-  `Transfer Jill-Destination` VARCHAR(45) NULL,
-  `Report Event` VARCHAR(45) NULL,
-  `Kit Transfer Link` VARCHAR(45) NULL,
-  `Create Individuals` VARCHAR(45) NULL,
-  `Collect Litter Weight` VARCHAR(45) NULL,
-  `Last Weigh Date` DATE NULL,
-  -- Calculate growth rate from other variables 
-  -- `Growth Rate (g/week)` INT NULL,
-  `Functioning Nipples` INT NULL,
-  -- Calculate nipple/kit count
-  -- `Nipple - Kit Count` INT NULL,
-  `Support Feeding` VARCHAR(45) NULL,
-  `Support Feed Type` VARCHAR(45) NULL,
-  `Today's Feed Count` INT NULL,
-  `Form Input Feed Count` INT NULL,
-  `Feeding Link` VARCHAR(45) NULL,
-  `Individuals Created` INT NULL,
-  `Summary Hob` VARCHAR(255) NULL,
-  `Summary Jill` VARCHAR(255) NULL,
-  `Jill, Hob` VARCHAR(255) NULL,
-  `Created` DATE NULL,
-  `Created By` VARCHAR(45) NULL,
-  `Nest Litter Changed` DATE NULL,
-  `Change Nest Litter Box` ENUM('0', '1') NULL,
-  `Nest Litter Box Change Link` VARCHAR(45) NULL,
-  PRIMARY KEY (`Litter Log_id`))
+CREATE TABLE IF NOT EXISTS `SanusBio`.`litter_log` (
+  `litter_log_id` INT NOT NULL AUTO_INCREMENT,
+  `litter_id` VARCHAR(45) NULL,
+  `litter_date` DATE NULL,
+  `from_recent_mating` ENUM('1', '0') NULL,
+  `kit_count` INT NULL,
+  `stillborn` INT NULL,
+  `infant_deaths` INT NULL,
+  `surviving_litter_count` INT NULL,
+  `kits_transferred_in` INT NULL,
+  `kits_transferred_out` INT NULL,
+  `transfer_date` DATE NULL,
+  `total_litter_size` INT NULL GENERATED ALWAYS AS (
+    IFNULL(kit_count, 0)
+    + IFNULL(kits_transferred_in, 0)
+    - IFNULL(kits_transferred_out, 0)
+  ) STORED,
+  `functioning_nipples` INT NULL,
+
+  -- Nipple minus kit count calculation
+  `nipple_kit_count` INT NULL GENERATED ALWAYS AS (
+    IFNULL(functioning_nipples, 0)
+    - IFNULL(surviving_litter_count, 0)
+  ) STORED,
+
+  `last_weight_grams` INT NULL,
+  `previous_weight_grams` INT NULL,
+  `last_weigh_date` DATE NULL,
+  `previous_weigh_date` DATE NULL,
+
+  -- Growth rate (grams per week)
+  `growth_rate_g_per_week` DECIMAL(6,2) GENERATED ALWAYS AS (
+    CASE 
+      WHEN previous_weigh_date IS NULL THEN NULL
+      WHEN DATEDIFF(last_weigh_date, previous_weigh_date) <= 0 THEN NULL
+      ELSE
+        ((last_weight_grams - previous_weight_grams)
+        / DATEDIFF(last_weigh_date, previous_weigh_date)) * 7
+    END
+  ) STORED,
+
+  `recent_nest_count` INT NULL,
+  `jill_removed_from_litter_date` DATE NULL,
+  `need_ids` INT NULL,
+  `anomalies_and_notes` VARCHAR(500) NULL,
+  `event_history` VARCHAR(1000) NULL, 
+  `start_kit_on_feed_(21_days)` DATE NULL,
+  `dark_cycle_date_(4mo)` DATE NULL,
+  `event_summary` VARCHAR(500) NULL,
+  `transfer_notes` VARCHAR(500) NULL,
+  `transfer_jill_source` VARCHAR(45) NULL,
+  `transfer_jill_destination` VARCHAR(45) NULL,
+  `report_event` VARCHAR(45) NULL,
+  `create_individuals` ENUM('y', 'n') NULL,
+  `collect_litter_weight` VARCHAR(45) NULL,
+  `support_feeding` VARCHAR(45) NULL,
+  `support_feed_type` VARCHAR(45) NULL,
+  `today_feed_count` INT NULL,
+  `syringe_feeding_log` VARCHAR(1000) NULL,
+  `individuals_created` INT NULL,
+  `summary_hob` VARCHAR(255) NULL,
+  `summary_jill` VARCHAR(255) NULL,
+  `father` VARCHAR(50) NULL,
+  `mother` VARCHAR(50) NULL,
+  `created` DATE NULL,
+  `created_by` VARCHAR(100) NULL,
+  `nest_litter_changed` DATE NULL,
+  `change_nest_litter_box` ENUM('0', '1') NULL,
+  `nest_box_change_log` VARCHAR(1000) NULL,
+  -- `Nest Litter Box Change Link` VARCHAR(45) NULL, foreign keys
+  -- `address` VARCHAR(45) NULL, Foreign Key
+  -- Calculation from other tables `Feeding Link` VARCHAR(45) NULL,
+  -- `Form Input Feed Count` INT NULL,
+  -- Today's Feed Count
+  -- `kit_transfer_link` VARCHAR(45) NULL,
+  -- calculate `Projected Wean Date (6 weeks)` DATE NULL,
+  PRIMARY KEY (`litter_log_id`))
 ENGINE = InnoDB;
 
 
