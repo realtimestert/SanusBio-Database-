@@ -1,0 +1,20 @@
+automation:
+  - alias: Prevent Concurrent Flush
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.valve1_open
+          - switch.valve1_close
+          # add remaining valve switches
+        to: "on"
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.flush_in_progress
+        state: "on"
+
+    action:
+      - service: logbook.log
+        data:
+          name: "Flush Error"
+          message: "Attempted concurrent flush — blocked"
