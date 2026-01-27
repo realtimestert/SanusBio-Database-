@@ -14,7 +14,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema sanusbio
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `sanusbio` DEFAULT CHARACTER SET utf8mb3 ;
+CREATE SCHEMA IF NOT EXISTS `sanusbio` DEFAULT CHARACTER SET utf8mb4 ;
 USE `sanusbio` ;
 
 -- -----------------------------------------------------
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`address` (
   `maintenance` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`address_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`estrus_check_log` (
   `in_estrus` ENUM('0', '1') NULL DEFAULT NULL,
   PRIMARY KEY (`estrus_check_log_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`females_to_mate` (
   `kits` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`females_to_mate_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`health_log` (
   `bath_history` VARCHAR(1000) NULL DEFAULT NULL,
   PRIMARY KEY (`health_log_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`medical_info` (
   `performed_by` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`medical_info_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -112,7 +112,6 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`ferret_qr005` (
   `Ferret_QR005_id` INT NOT NULL,
   `animal_id` INT NOT NULL,
   `ferret_name` VARCHAR(45) NOT NULL,
-  `rfid_change_log` VARCHAR(1000) NULL DEFAULT NULL,
   `location_change_log` VARCHAR(1000) NULL DEFAULT NULL,
   `birth_date` DATE NOT NULL,
   `death_date` DATE NULL DEFAULT NULL,
@@ -137,7 +136,6 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`ferret_qr005` (
   `distribution_date` DATE NULL DEFAULT NULL,
   `clip_nails` ENUM('0', '1') NULL DEFAULT NULL,
   `bath` ENUM('0', '1') NULL DEFAULT NULL,
-  `animal_rfid` VARCHAR(15) NULL DEFAULT NULL,
   `litter_id` VARCHAR(7) NULL DEFAULT NULL,
   `litter_date` DATE NULL DEFAULT NULL,
   `purchase_id` VARCHAR(45) NULL DEFAULT NULL,
@@ -180,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`ferret_qr005` (
     FOREIGN KEY (`mother_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -208,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`estrus_&_mating_summary` (
     FOREIGN KEY (`Ferret_QR005_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -230,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`ferret_location_history` (
     FOREIGN KEY (`ferret_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -251,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`health_event` (
     FOREIGN KEY (`ferret_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -311,7 +309,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`litter_log` (
     FOREIGN KEY (`Ferret_QR005_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -331,7 +329,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`rfid_assignment` (
     FOREIGN KEY (`ferret_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -343,7 +341,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`supplier` (
   `contact_info` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`supplier_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -364,7 +362,7 @@ CREATE TABLE IF NOT EXISTS `sanusbio`.`vaccination_event` (
     FOREIGN KEY (`ferret_id`)
     REFERENCES `sanusbio`.`ferret_qr005` (`Ferret_QR005_id`))
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
