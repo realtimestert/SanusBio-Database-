@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#c87759">
+  <title>SanusBio Ferret Colony Manager</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #c87759;
+      --primary-dark: #a85f47;
+      --secondary: #7ba885;
+      --secondary-light: #a8c4ae;
+      --background: #faf8f5;
+      --surface: #ffffff;
+      --surface-hover: #f5f2ee;
+      --text-primary: #2d2d2d;
+      --text-secondary: #6b6b6b;
+      --text-tertiary: #999999;
+      --border: #e8e3dc;
+      --border-light: #f0ebe4;
+      --success: #6b9e78;
+      --warning: #d99548;
+      --danger: #c85959;
+      --shadow: rgba(0, 0, 0, 0.08);
+      --shadow-lg: rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+    }
+
+    #root {
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* Page Transitions */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-enter {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.5rem 1.25rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .app-subtitle {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .search-bar-container {
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 2.75rem;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+
+    .search-bar:focus {
+      outline: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      background: white;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1rem;
+      border: 1px solid var(--border-light);
+      text-align: center;
+      box-shadow: 0 1px 3px var(--shadow);
+      transition: all 0.2s;
+    }
+
+    .stat-card:active {
+      transform: scale(0.98);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    /* Card Styles */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .card:active {
+      transform: scale(0.99);
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-primary {
+      background: rgba(200, 119, 89, 0.15);
+      color: var(--primary-dark);
+    }
+
+    .badge-success {
+      background: rgba(107, 158, 120, 0.15);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: rgba(217, 149, 72, 0.15);
+      color: var(--warning);
+    }
+
+    .badge-info {
+      background: rgba(123, 168, 133, 0.15);
+      color: var(--secondary);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Outfit', sans-serif;
+      text-decoration: none;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(200, 119, 89, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(200, 119, 89, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:active {
+      background: var(--surface-hover);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 90px;
+      right: 1.25rem;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 16px rgba(200, 119, 89, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 90;
+    }
+
+    .fab:active {
+      transform: scale(0.95);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-family: 'Source Sans 3', sans-serif;
+      color: var(--text-primary);
+      background: var(--surface);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(200, 119, 89, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+      box-shadow: 0 -2px 12px var(--shadow);
+      z-index: 100;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Detail View */
+    .detail-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.5rem 1.25rem;
+      margin: -1.25rem -1.25rem 1.5rem -1.25rem;
+      border-radius: 0 0 24px 24px;
+    }
+
+    .detail-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .detail-subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-left: 2px solid var(--border-light);
+    }
+
+    .timeline-item:last-child {
+      border-left-color: transparent;
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -6px;
+      top: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .timeline-content {
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .timeline-date {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-end;
+      z-index: 200;
+      animation: fadeIn 0.2s;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      padding: 1.5rem;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      color: var(--text-tertiary);
+      margin-bottom: 1rem;
+    }
+
+    .empty-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-description {
+      font-size: 0.9375rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-light);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+      padding: 0.875rem 1.25rem;
+      border: none;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Back Button */
+    .back-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+
+    .back-button:active {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      
+      .modal-content {
+        border-radius: 24px;
+        max-width: 600px;
+        margin: auto;
+      }
+      
+      .modal-overlay {
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // Mock Data Generator
+    const generateMockData = () => {
+      const ferretNames = ['Luna', 'Atlas', 'Nova', 'Stella', 'Jasper', 'Willow', 'Pepper', 'Cinnamon', 'Whisper', 'Shadow', 'Marble', 'Oreo', 'Bandit', 'Scout', 'Ziggy', 'Noodle', 'Mocha', 'Ginger'];
+      const locations = ['A-101', 'A-102', 'A-103', 'B-201', 'B-202', 'B-203', 'C-301', 'C-302'];
+      const suppliers = ['Marshall Farms', 'Path Valley', 'Triple F Farms'];
+      
+      const ferrets = [];
+      for (let i = 0; i < 18; i++) {
+        const birthDate = new Date(2022 + Math.floor(Math.random() * 2), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+        const isFemale = Math.random() > 0.5;
+        
+        ferrets.push({
+          id: i + 1,
+          name: ferretNames[i],
+          animal_id: `F${String(i + 1).padStart(4, '0')}`,
+          birth_date: birthDate.toISOString().split('T')[0],
+          sex: isFemale ? 'Female' : 'Male',
+          weight: 800 + Math.floor(Math.random() * 600),
+          location: locations[Math.floor(Math.random() * locations.length)],
+          supplier: suppliers[Math.floor(Math.random() * suppliers.length)],
+          description: `${isFemale ? 'Sable' : 'Albino'} ferret`,
+          mother: i > 5 ? ferretNames[Math.floor(Math.random() * 6)] : null,
+          father: i > 5 ? ferretNames[Math.floor(Math.random() * 6)] : null,
+          next_rabies_vaccine: new Date(2026, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+          dead: false,
+          in_estrus: isFemale && Math.random() > 0.7,
+          castrated_spayed: !isFemale && Math.random() > 0.6,
+          health_events: [],
+          location_history: [],
+          breeding_history: []
+        });
+      }
+      
+      return ferrets;
+    };
+
+    // LocalStorage utilities
+    const STORAGE_KEY = 'sanusbio_ferrets';
+    
+    const loadFerrets = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      const initial = generateMockData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      return initial;
+    };
+
+    const saveFerrets = (ferrets) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ferrets));
+    };
+
+    // Icons (simplified SVG)
+    const Icon = ({ name, size = 24 }) => {
+      const icons = {
+        search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
+        plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+        home: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+        activity: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+        heart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+        mapPin: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+        settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m5.2-13.8-4.2 4.2m-2 2-4.2 4.2m15.6-5.2h-6m-6 0H1m13.8 5.2-4.2-4.2m-2-2-4.2-4.2"/></svg>,
+        arrowLeft: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+        x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+        calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+        clipboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>,
+      };
+      return icons[name] || null;
+    };
+
+    // Main App Component
+    const App = () => {
+      const [currentPage, setCurrentPage] = useState('list');
+      const [ferrets, setFerrets] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedFerret, setSelectedFerret] = useState(null);
+      const [showModal, setShowModal] = useState(false);
+      const [modalType, setModalType] = useState('');
+
+      useEffect(() => {
+        setFerrets(loadFerrets());
+      }, []);
+
+      const filteredFerrets = useMemo(() => {
+        if (!searchQuery) return ferrets;
+        const query = searchQuery.toLowerCase();
+        return ferrets.filter(f => 
+          f.name.toLowerCase().includes(query) ||
+          f.animal_id.toLowerCase().includes(query) ||
+          f.location.toLowerCase().includes(query)
+        );
+      }, [ferrets, searchQuery]);
+
+      const stats = useMemo(() => ({
+        total: ferrets.length,
+        female: ferrets.filter(f => f.sex === 'Female').length,
+        inEstrus: ferrets.filter(f => f.in_estrus).length,
+        needsVaccine: ferrets.filter(f => new Date(f.next_rabies_vaccine) < new Date(Date.now() + 30*24*60*60*1000)).length
+      }), [ferrets]);
+
+      const updateFerret = (id, updates) => {
+        const updated = ferrets.map(f => f.id === id ? { ...f, ...updates } : f);
+        setFerrets(updated);
+        saveFerrets(updated);
+        if (selectedFerret?.id === id) {
+          setSelectedFerret({ ...selectedFerret, ...updates });
+        }
+      };
+
+      const addHealthEvent = (ferretId, event) => {
+        const ferret = ferrets.find(f => f.id === ferretId);
+        if (ferret) {
+          const updatedEvents = [...(ferret.health_events || []), event];
+          updateFerret(ferretId, { health_events: updatedEvents });
+        }
+      };
+
+      const openModal = (type, ferret = null) => {
+        setModalType(type);
+        setSelectedFerret(ferret);
+        setShowModal(true);
+      };
+
+      const closeModal = () => {
+        setShowModal(false);
+        setModalType('');
+      };
+
+      return (
+        <>
+          {currentPage === 'list' && (
+            <FerretListPage 
+              ferrets={filteredFerrets}
+              stats={stats}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onSelectFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }}
+              onAddHealth={(f) => openModal('health', f)}
+            />
+          )}
+
+          {currentPage === 'detail' && selectedFerret && (
+            <FerretDetailPage 
+              ferret={selectedFerret}
+              onBack={() => setCurrentPage('list')}
+              onAddHealth={() => openModal('health', selectedFerret)}
+              onAddLocation={() => openModal('location', selectedFerret)}
+              onAddBreeding={() => openModal('breeding', selectedFerret)}
+            />
+          )}
+
+          {currentPage === 'health' && (
+            <HealthEventsPage 
+              ferrets={ferrets}
+              onAddEvent={(f) => openModal('health', f)}
+            />
+          )}
+
+          {currentPage === 'breeding' && (
+            <BreedingPage 
+              ferrets={ferrets}
+              onViewFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }}
+            />
+          )}
+
+          {currentPage === 'locations' && (
+            <LocationsPage 
+              ferrets={ferrets}
+              onMoveSelect={(f) => openModal('location', f)}
+            />
+          )}
+
+          <BottomNav currentPage={currentPage} setCurrentPage={setCurrentPage} />
+
+          {showModal && (
+            <Modal onClose={closeModal}>
+              {modalType === 'health' && (
+                <HealthEventForm 
+                  ferret={selectedFerret}
+                  onSubmit={(event) => {
+                    addHealthEvent(selectedFerret.id, event);
+                    closeModal();
+                  }}
+                  onCancel={closeModal}
+                />
+              )}
+              {modalType === 'location' && (
+                <LocationForm 
+                  ferret={selectedFerret}
+                  onSubmit={(location) => {
+                    updateFerret(selectedFerret.id, { location });
+                    closeModal();
+                  }}
+                  onCancel={closeModal}
+                />
+              )}
+              {modalType === 'breeding' && (
+                <BreedingForm 
+                  ferret={selectedFerret}
+                  onSubmit={(data) => {
+                    const breeding = {
+                      date: data.date,
+                      partner: data.partner,
+                      notes: data.notes
+                    };
+                    const history = [...(selectedFerret.breeding_history || []), breeding];
+                    updateFerret(selectedFerret.id, { 
+                      breeding_history: history,
+                      in_estrus: false 
+                    });
+                    closeModal();
+                  }}
+                  onCancel={closeModal}
+                />
+              )}
+            </Modal>
+          )}
+
+          <button className="fab" onClick={() => openModal('health')}>
+            <Icon name="plus" size={24} />
+          </button>
+        </>
+      );
+    };
+
+    // Ferret List Page
+    const FerretListPage = ({ ferrets, stats, searchQuery, setSearchQuery, onSelectFerret, onAddHealth }) => {
+      return (
+        <div className="page-enter">
+          <div className="app-header">
+            <div className="header-content">
+              <h1 className="app-title">SanusBio</h1>
+              <p className="app-subtitle">Ferret Colony Manager</p>
+              <div className="search-bar-container">
+                <Icon name="search" size={20} />
+                <input 
+                  type="text" 
+                  className="search-bar" 
+                  placeholder="Search by name, ID, or location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="main-content">
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-value">{stats.total}</div>
+                <div className="stat-label">Total Ferrets</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.female}</div>
+                <div className="stat-label">Females</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.inEstrus}</div>
+                <div className="stat-label">In Estrus</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.needsVaccine}</div>
+                <div className="stat-label">Vaccine Due</div>
+              </div>
+            </div>
+
+            {ferrets.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">🦡</div>
+                <h3 className="empty-title">No ferrets found</h3>
+                <p className="empty-description">Try adjusting your search</p>
+              </div>
+            ) : (
+              ferrets.map(ferret => (
+                <div key={ferret.id} className="card" onClick={() => onSelectFerret(ferret)}>
+                  <div className="card-header">
+                    <div>
+                      <h3 className="card-title">{ferret.name}</h3>
+                      <p className="card-subtitle">{ferret.animal_id} • {ferret.sex}</p>
+                    </div>
+                    {ferret.in_estrus && <span className="badge badge-warning">Estrus</span>}
+                  </div>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="info-label">Location</span>
+                      <span className="info-value">{ferret.location}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Weight</span>
+                      <span className="info-value">{ferret.weight}g</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Age</span>
+                      <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Next Vaccine</span>
+                      <span className="info-value">{new Date(ferret.next_rabies_vaccine).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Ferret Detail Page
+    const FerretDetailPage = ({ ferret, onBack, onAddHealth, onAddLocation, onAddBreeding }) => {
+      const [activeTab, setActiveTab] = useState('info');
+
+      const age = Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000));
+      const ageMonths = Math.floor((new Date() - new Date(ferret.birth_date)) / (30.44 * 24 * 60 * 60 * 1000));
+
+      return (
+        <div className="page-enter">
+          <div className="app-header">
+            <div className="header-content">
+              <button className="back-button" onClick={onBack}>
+                <Icon name="arrowLeft" size={20} />
+                Back
+              </button>
+              <h1 className="app-title">{ferret.name}</h1>
+              <p className="app-subtitle">{ferret.animal_id} • {ferret.sex} • {ferret.description}</p>
+            </div>
+          </div>
+
+          <div className="main-content">
+            <div className="tabs">
+              <button className={`tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Info</button>
+              <button className={`tab ${activeTab === 'health' ? 'active' : ''}`} onClick={() => setActiveTab('health')}>Health</button>
+              <button className={`tab ${activeTab === 'breeding' ? 'active' : ''}`} onClick={() => setActiveTab('breeding')}>Breeding</button>
+              <button className={`tab ${activeTab === 'location' ? 'active' : ''}`} onClick={() => setActiveTab('location')}>Location</button>
+            </div>
+
+            {activeTab === 'info' && (
+              <div>
+                <div className="detail-section">
+                  <h3 className="section-title">Basic Information</h3>
+                  <div className="card">
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">Birth Date</span>
+                        <span className="info-value">{new Date(ferret.birth_date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Age</span>
+                        <span className="info-value">{age} years {ageMonths % 12} months</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Weight</span>
+                        <span className="info-value">{ferret.weight}g</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Current Location</span>
+                        <span className="info-value">{ferret.location}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Supplier</span>
+                        <span className="info-value">{ferret.supplier}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Status</span>
+                        <span className="info-value">{ferret.castrated_spayed ? 'Altered' : 'Intact'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-section">
+                  <h3 className="section-title">Genealogy</h3>
+                  <div className="card">
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">Mother</span>
+                        <span className="info-value">{ferret.mother || 'Unknown'}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Father</span>
+                        <span className="info-value">{ferret.father || 'Unknown'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-section">
+                  <h3 className="section-title">Vaccination</h3>
+                  <div className="card">
+                    <div className="info-item">
+                      <span className="info-label">Next Rabies Vaccine Due</span>
+                      <span className="info-value">{new Date(ferret.next_rabies_vaccine).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'health' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 className="section-title" style={{ marginBottom: 0 }}>Health Events</h3>
+                  <button className="btn btn-primary" onClick={onAddHealth}>Add Event</button>
+                </div>
+                {!ferret.health_events || ferret.health_events.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">📋</div>
+                    <h3 className="empty-title">No health events</h3>
+                    <p className="empty-description">Add weight checks, baths, or nail trims</p>
+                  </div>
+                ) : (
+                  <div className="timeline">
+                    {ferret.health_events.sort((a, b) => new Date(b.date) - new Date(a.date)).map((event, i) => (
+                      <div key={i} className="timeline-item">
+                        <div className="timeline-dot"></div>
+                        <div className="timeline-content">
+                          <div className="timeline-date">{new Date(event.date).toLocaleDateString()}</div>
+                          <div className="timeline-title">{event.type}</div>
+                          {event.weight && <div className="timeline-description">Weight: {event.weight}g</div>}
+                          {event.notes && <div className="timeline-description">{event.notes}</div>}
+                          {event.recorded_by && <div className="timeline-description">By: {event.recorded_by}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'breeding' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 className="section-title" style={{ marginBottom: 0 }}>Breeding History</h3>
+                  {ferret.sex === 'Female' && <button className="btn btn-primary" onClick={onAddBreeding}>Record Mating</button>}
+                </div>
+                
+                {ferret.sex === 'Female' && (
+                  <div className="card" style={{ marginBottom: '1rem' }}>
+                    <div className="info-item">
+                      <span className="info-label">Estrus Status</span>
+                      <span className="info-value">
+                        {ferret.in_estrus ? (
+                          <span className="badge badge-warning">In Estrus</span>
+                        ) : (
+                          <span className="badge badge-success">Not in Estrus</span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {!ferret.breeding_history || ferret.breeding_history.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">💕</div>
+                    <h3 className="empty-title">No breeding records</h3>
+                    <p className="empty-description">Breeding history will appear here</p>
+                  </div>
+                ) : (
+                  <div className="timeline">
+                    {ferret.breeding_history.sort((a, b) => new Date(b.date) - new Date(a.date)).map((breeding, i) => (
+                      <div key={i} className="timeline-item">
+                        <div className="timeline-dot"></div>
+                        <div className="timeline-content">
+                          <div className="timeline-date">{new Date(breeding.date).toLocaleDateString()}</div>
+                          <div className="timeline-title">Mating Event</div>
+                          {breeding.partner && <div className="timeline-description">Partner: {breeding.partner}</div>}
+                          {breeding.notes && <div className="timeline-description">{breeding.notes}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'location' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 className="section-title" style={{ marginBottom: 0 }}>Location History</h3>
+                  <button className="btn btn-primary" onClick={onAddLocation}>Move Ferret</button>
+                </div>
+                
+                <div className="card" style={{ marginBottom: '1rem' }}>
+                  <div className="info-item">
+                    <span className="info-label">Current Location</span>
+                    <span className="info-value">{ferret.location}</span>
+                  </div>
+                </div>
+
+                {!ferret.location_history || ferret.location_history.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">📍</div>
+                    <h3 className="empty-title">No location history</h3>
+                    <p className="empty-description">Location changes will appear here</p>
+                  </div>
+                ) : (
+                  <div className="timeline">
+                    {ferret.location_history.sort((a, b) => new Date(b.date) - new Date(a.date)).map((loc, i) => (
+                      <div key={i} className="timeline-item">
+                        <div className="timeline-dot"></div>
+                        <div className="timeline-content">
+                          <div className="timeline-date">{new Date(loc.date).toLocaleDateString()}</div>
+                          <div className="timeline-title">Moved to {loc.location}</div>
+                          {loc.reason && <div className="timeline-description">Reason: {loc.reason}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Health Events Page
+    const HealthEventsPage = ({ ferrets, onAddEvent }) => {
+      const allEvents = ferrets.flatMap(f => 
+        (f.health_events || []).map(e => ({ ...e, ferret: f }))
+      ).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      return (
+        <div className="page-enter">
+          <div className="app-header">
+            <div className="header-content">
+              <h1 className="app-title">Health Events</h1>
+              <p className="app-subtitle">Recent health records</p>
+            </div>
+          </div>
+
+          <div className="main-content">
+            {allEvents.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">📋</div>
+                <h3 className="empty-title">No health events</h3>
+                <p className="empty-description">Add events using the + button</p>
+              </div>
+            ) : (
+              allEvents.slice(0, 50).map((event, i) => (
+                <div key={i} className="card">
+                  <div className="card-header">
+                    <div>
+                      <h3 className="card-title">{event.ferret.name}</h3>
+                      <p className="card-subtitle">{event.ferret.animal_id}</p>
+                    </div>
+                    <span className="badge badge-info">{event.type}</span>
+                  </div>
+                  <div className="info-grid">
+                    <div className="info-item">
+                      <span className="info-label">Date</span>
+                      <span className="info-value">{new Date(event.date).toLocaleDateString()}</span>
+                    </div>
+                    {event.weight && (
+                      <div className="info-item">
+                        <span className="info-label">Weight</span>
+                        <span className="info-value">{event.weight}g</span>
+                      </div>
+                    )}
+                    {event.recorded_by && (
+                      <div className="info-item">
+                        <span className="info-label">Recorded By</span>
+                        <span className="info-value">{event.recorded_by}</span>
+                      </div>
+                    )}
+                  </div>
+                  {event.notes && (
+                    <div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      {event.notes}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Breeding Page
+    const BreedingPage = ({ ferrets, onViewFerret }) => {
+      const inEstrus = ferrets.filter(f => f.in_estrus);
+      const recentMating = ferrets.filter(f => 
+        f.breeding_history && f.breeding_history.length > 0
+      ).sort((a, b) => {
+        const lastA = new Date(a.breeding_history[a.breeding_history.length - 1].date);
+        const lastB = new Date(b.breeding_history[b.breeding_history.length - 1].date);
+        return lastB - lastA;
+      });
+
+      return (
+        <div className="page-enter">
+          <div className="app-header">
+            <div className="header-content">
+              <h1 className="app-title">Breeding Management</h1>
+              <p className="app-subtitle">Estrus tracking & mating records</p>
+            </div>
+          </div>
+
+          <div className="main-content">
+            <div className="detail-section">
+              <h3 className="section-title">Females in Estrus ({inEstrus.length})</h3>
+              {inEstrus.length === 0 ? (
+                <div className="card">
+                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No females currently in estrus</p>
+                </div>
+              ) : (
+                inEstrus.map(ferret => (
+                  <div key={ferret.id} className="card" onClick={() => onViewFerret(ferret)}>
+                    <div className="card-header">
+                      <div>
+                        <h3 className="card-title">{ferret.name}</h3>
+                        <p className="card-subtitle">{ferret.animal_id}</p>
+                      </div>
+                      <span className="badge badge-warning">Estrus</span>
+                    </div>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">Location</span>
+                        <span className="info-value">{ferret.location}</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Age</span>
+                        <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="detail-section">
+              <h3 className="section-title">Recent Breeding Events</h3>
+              {recentMating.length === 0 ? (
+                <div className="card">
+                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No recent breeding events</p>
+                </div>
+              ) : (
+                recentMating.slice(0, 10).map(ferret => {
+                  const lastBreeding = ferret.breeding_history[ferret.breeding_history.length - 1];
+                  return (
+                    <div key={ferret.id} className="card" onClick={() => onViewFerret(ferret)}>
+                      <div className="card-header">
+                        <div>
+                          <h3 className="card-title">{ferret.name}</h3>
+                          <p className="card-subtitle">{ferret.animal_id}</p>
+                        </div>
+                      </div>
+                      <div className="info-grid">
+                        <div className="info-item">
+                          <span className="info-label">Last Mating</span>
+                          <span className="info-value">{new Date(lastBreeding.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Partner</span>
+                          <span className="info-value">{lastBreeding.partner || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Locations Page
+    const LocationsPage = ({ ferrets, onMoveSelect }) => {
+      const locationGroups = ferrets.reduce((acc, ferret) => {
+        if (!acc[ferret.location]) {
+          acc[ferret.location] = [];
+        }
+        acc[ferret.location].push(ferret);
+        return acc;
+      }, {});
+
+      const locations = Object.keys(locationGroups).sort();
+
+      return (
+        <div className="page-enter">
+          <div className="app-header">
+            <div className="header-content">
+              <h1 className="app-title">Locations</h1>
+              <p className="app-subtitle">Colony housing management</p>
+            </div>
+          </div>
+
+          <div className="main-content">
+            {locations.map(location => (
+              <div key={location} className="detail-section">
+                <h3 className="section-title">{location} ({locationGroups[location].length})</h3>
+                {locationGroups[location].map(ferret => (
+                  <div key={ferret.id} className="card">
+                    <div className="card-header">
+                      <div>
+                        <h3 className="card-title">{ferret.name}</h3>
+                        <p className="card-subtitle">{ferret.animal_id} • {ferret.sex}</p>
+                      </div>
+                    </div>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="info-label">Weight</span>
+                        <span className="info-value">{ferret.weight}g</span>
+                      </div>
+                      <div className="info-item">
+                        <span className="info-label">Age</span>
+                        <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    // Bottom Navigation
+    const BottomNav = ({ currentPage, setCurrentPage }) => {
+      return (
+        <nav className="bottom-nav">
+          <a className={`nav-item ${currentPage === 'list' ? 'active' : ''}`} onClick={() => setCurrentPage('list')}>
+            <div className="nav-icon"><Icon name="home" size={24} /></div>
+            <div className="nav-label">Ferrets</div>
+          </a>
+          <a className={`nav-item ${currentPage === 'health' ? 'active' : ''}`} onClick={() => setCurrentPage('health')}>
+            <div className="nav-icon"><Icon name="activity" size={24} /></div>
+            <div className="nav-label">Health</div>
+          </a>
+          <a className={`nav-item ${currentPage === 'breeding' ? 'active' : ''}`} onClick={() => setCurrentPage('breeding')}>
+            <div className="nav-icon"><Icon name="heart" size={24} /></div>
+            <div className="nav-label">Breeding</div>
+          </a>
+          <a className={`nav-item ${currentPage === 'locations' ? 'active' : ''}`} onClick={() => setCurrentPage('locations')}>
+            <div className="nav-icon"><Icon name="mapPin" size={24} /></div>
+            <div className="nav-label">Locations</div>
+          </a>
+        </nav>
+      );
+    };
+
+    // Modal Component
+    const Modal = ({ children, onClose }) => {
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            {children}
+          </div>
+        </div>
+      );
+    };
+
+    // Health Event Form
+    const HealthEventForm = ({ ferret, onSubmit, onCancel }) => {
+      const [type, setType] = useState('Weight Check');
+      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+      const [weight, setWeight] = useState(ferret?.weight || '');
+      const [notes, setNotes] = useState('');
+      const [recordedBy, setRecordedBy] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit({
+          type,
+          date,
+          weight: type === 'Weight Check' ? parseInt(weight) : null,
+          notes,
+          recorded_by: recordedBy
+        });
+      };
+
+      return (
+        <>
+          <div className="modal-header">
+            <h2 className="modal-title">Add Health Event</h2>
+            <button className="modal-close" onClick={onCancel}>
+              <Icon name="x" size={24} />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit}>
+            {ferret && (
+              <div className="form-group">
+                <label className="form-label">Ferret</label>
+                <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
+                  <strong>{ferret.name}</strong> ({ferret.animal_id})
+                </div>
+              </div>
+            )}
+            
+            <div className="form-group">
+              <label className="form-label">Event Type</label>
+              <select className="form-select" value={type} onChange={(e) => setType(e.target.value)} required>
+                <option>Weight Check</option>
+                <option>Bath</option>
+                <option>Nail Trim</option>
+                <option>Health Check</option>
+                <option>Vaccination</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Date</label>
+              <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} required />
+            </div>
+
+            {type === 'Weight Check' && (
+              <div className="form-group">
+                <label className="form-label">Weight (grams)</label>
+                <input type="number" className="form-input" value={weight} onChange={(e) => setWeight(e.target.value)} required />
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">Notes (optional)</label>
+              <textarea className="form-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any observations or details..."></textarea>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Recorded By (optional)</label>
+              <input type="text" className="form-input" value={recordedBy} onChange={(e) => setRecordedBy(e.target.value)} placeholder="Your name" />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
+              <button type="submit" className="btn btn-primary btn-full">Save Event</button>
+            </div>
+          </form>
+        </>
+      );
+    };
+
+    // Location Form
+    const LocationForm = ({ ferret, onSubmit, onCancel }) => {
+      const [location, setLocation] = useState('');
+      const [reason, setReason] = useState('');
+      
+      const locations = ['A-101', 'A-102', 'A-103', 'B-201', 'B-202', 'B-203', 'C-301', 'C-302', 'D-401', 'D-402'];
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(location);
+      };
+
+      return (
+        <>
+          <div className="modal-header">
+            <h2 className="modal-title">Move Ferret</h2>
+            <button className="modal-close" onClick={onCancel}>
+              <Icon name="x" size={24} />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Ferret</label>
+              <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
+                <strong>{ferret.name}</strong> ({ferret.animal_id})<br/>
+                <small style={{ color: 'var(--text-secondary)' }}>Current: {ferret.location}</small>
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">New Location</label>
+              <select className="form-select" value={location} onChange={(e) => setLocation(e.target.value)} required>
+                <option value="">Select location...</option>
+                {locations.map(loc => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Reason (optional)</label>
+              <input type="text" className="form-input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is this ferret being moved?" />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
+              <button type="submit" className="btn btn-primary btn-full">Move Ferret</button>
+            </div>
+          </form>
+        </>
+      );
+    };
+
+    // Breeding Form
+    const BreedingForm = ({ ferret, onSubmit, onCancel }) => {
+      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+      const [partner, setPartner] = useState('');
+      const [notes, setNotes] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit({ date, partner, notes });
+      };
+
+      return (
+        <>
+          <div className="modal-header">
+            <h2 className="modal-title">Record Mating</h2>
+            <button className="modal-close" onClick={onCancel}>
+              <Icon name="x" size={24} />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Female</label>
+              <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
+                <strong>{ferret.name}</strong> ({ferret.animal_id})
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Mating Date</label>
+              <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} required />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Male Partner</label>
+              <input type="text" className="form-input" value={partner} onChange={(e) => setPartner(e.target.value)} placeholder="Male ferret name or ID" required />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Notes (optional)</label>
+              <textarea className="form-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observations about the mating..."></textarea>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
+              <button type="submit" className="btn btn-primary btn-full">Record Mating</button>
+            </div>
+          </form>
+        </>
+      );
+    };
+
+    // Render App
+    ReactDOM.render(<App />, document.getElementById('root'));
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(registration => {
+          console.log('SW registered:', registration);
+        }).catch(error => {
+          console.log('SW registration failed:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
