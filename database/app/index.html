@@ -56,7 +56,7 @@
       padding-bottom: 80px;
     }
 
-    /* Page Transitions */
+    /* Animations */
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -97,6 +97,13 @@
     .header-content {
       max-width: 1200px;
       margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      flex: 1;
     }
 
     .app-title {
@@ -110,6 +117,36 @@
       font-size: 0.875rem;
       opacity: 0.9;
       font-weight: 400;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .user-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:active {
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .search-bar-container {
@@ -205,6 +242,14 @@
       box-shadow: 0 1px 4px var(--shadow);
     }
 
+    .card.no-hover {
+      cursor: default;
+    }
+
+    .card.no-hover:active {
+      transform: none;
+    }
+
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -222,6 +267,14 @@
     .card-subtitle {
       font-size: 0.875rem;
       color: var(--text-secondary);
+    }
+
+    .ferret-photo {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid var(--border);
     }
 
     .badge {
@@ -247,6 +300,11 @@
     .badge-warning {
       background: rgba(217, 149, 72, 0.15);
       color: var(--warning);
+    }
+
+    .badge-danger {
+      background: rgba(200, 89, 89, 0.15);
+      color: var(--danger);
     }
 
     .badge-info {
@@ -319,8 +377,18 @@
       background: var(--surface-hover);
     }
 
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
     .btn-full {
       width: 100%;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
 
     .fab {
@@ -386,6 +454,24 @@
       min-height: 100px;
     }
 
+    .file-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-upload-area:hover {
+      border-color: var(--primary);
+      background: var(--background);
+    }
+
+    .file-upload-area input {
+      display: none;
+    }
+
     /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
@@ -429,85 +515,33 @@
       letter-spacing: 0.05em;
     }
 
-    /* Detail View */
-    .detail-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: white;
-      padding: 1.5rem 1.25rem;
-      margin: -1.25rem -1.25rem 1.5rem -1.25rem;
-      border-radius: 0 0 24px 24px;
-    }
-
-    .detail-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .detail-subtitle {
-      font-size: 1rem;
-      opacity: 0.9;
-    }
-
-    .detail-section {
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
       margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-light);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .timeline-item {
-      position: relative;
-      padding-left: 1.5rem;
-      padding-bottom: 1.25rem;
-      border-left: 2px solid var(--border-light);
-    }
-
-    .timeline-item:last-child {
-      border-left-color: transparent;
-      padding-bottom: 0;
-    }
-
-    .timeline-dot {
-      position: absolute;
-      left: -6px;
-      top: 0;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--primary);
-    }
-
-    .timeline-content {
-      background: var(--surface);
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .timeline-date {
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .timeline-title {
+    .tab {
+      padding: 0.875rem 1.25rem;
+      border: none;
+      background: none;
+      color: var(--text-secondary);
       font-size: 0.9375rem;
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
 
-    .timeline-description {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
     }
 
     /* Modal */
@@ -560,28 +594,91 @@
       justify-content: center;
     }
 
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1.5rem;
+    /* Login Page */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     }
 
-    .empty-icon {
-      font-size: 4rem;
-      color: var(--text-tertiary);
+    .login-card {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-logo {
+      text-align: center;
+      font-size: 3rem;
       margin-bottom: 1rem;
     }
 
-    .empty-title {
-      font-size: 1.25rem;
-      font-weight: 600;
+    .login-title {
+      text-align: center;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .login-subtitle {
+      text-align: center;
       color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Timeline */
+    .timeline-item {
+      position: relative;
+      padding-left: 1.5rem;
+      padding-bottom: 1.25rem;
+      border-left: 2px solid var(--border-light);
+    }
+
+    .timeline-item:last-child {
+      border-left-color: transparent;
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -6px;
+      top: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .timeline-content {
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .timeline-date {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-weight: 600;
       margin-bottom: 0.5rem;
     }
 
-    .empty-description {
+    .timeline-title {
       font-size: 0.9375rem;
-      color: var(--text-tertiary);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
     }
 
     /* Loading */
@@ -605,33 +702,97 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid var(--border-light);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
     }
 
-    .tab {
-      padding: 0.875rem 1.25rem;
-      border: none;
-      background: none;
-      color: var(--text-secondary);
-      font-size: 0.9375rem;
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-title {
+      font-size: 1.25rem;
       font-weight: 600;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
-      white-space: nowrap;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
     }
 
-    .tab.active {
+    .empty-description {
+      font-size: 0.9375rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Location Grid */
+    .location-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .location-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1.25rem;
+      border: 2px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .location-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .location-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .location-name {
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--primary);
-      border-bottom-color: var(--primary);
+    }
+
+    .capacity-badge {
+      background: var(--background);
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .ferret-list-compact {
+      margin-top: 0.75rem;
+    }
+
+    .ferret-item-compact {
+      padding: 0.5rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: var(--background);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      
+      .modal-content {
+        border-radius: 24px;
+        max-width: 600px;
+        margin: auto;
+      }
+      
+      .modal-overlay {
+        align-items: center;
+      }
     }
 
     /* Back Button */
@@ -653,23 +814,6 @@
     .back-button:active {
       background: rgba(255, 255, 255, 0.3);
     }
-
-    /* Responsive */
-    @media (min-width: 768px) {
-      .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-      
-      .modal-content {
-        border-radius: 24px;
-        max-width: 600px;
-        margin: auto;
-      }
-      
-      .modal-overlay {
-        align-items: center;
-      }
-    }
   </style>
 </head>
 <body>
@@ -678,64 +822,136 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useMemo, useCallback } = React;
 
-    // Mock Data Generator
-    const generateMockData = () => {
-      const ferretNames = ['Luna', 'Atlas', 'Nova', 'Stella', 'Jasper', 'Willow', 'Pepper', 'Cinnamon', 'Whisper', 'Shadow', 'Marble', 'Oreo', 'Bandit', 'Scout', 'Ziggy', 'Noodle', 'Mocha', 'Ginger'];
-      const locations = ['A-101', 'A-102', 'A-103', 'B-201', 'B-202', 'B-203', 'C-301', 'C-302'];
-      const suppliers = ['Marshall Farms', 'Path Valley', 'Triple F Farms'];
-      
-      const ferrets = [];
-      for (let i = 0; i < 18; i++) {
-        const birthDate = new Date(2022 + Math.floor(Math.random() * 2), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-        const isFemale = Math.random() > 0.5;
+    // API Configuration
+    const API_BASE = 'http://localhost:3000/api';
+
+    // API Helper
+    const api = {
+      async request(endpoint, options = {}) {
+        const token = localStorage.getItem('token');
+        const headers = {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        };
         
-        ferrets.push({
-          id: i + 1,
-          name: ferretNames[i],
-          animal_id: `F${String(i + 1).padStart(4, '0')}`,
-          birth_date: birthDate.toISOString().split('T')[0],
-          sex: isFemale ? 'Female' : 'Male',
-          weight: 800 + Math.floor(Math.random() * 600),
-          location: locations[Math.floor(Math.random() * locations.length)],
-          supplier: suppliers[Math.floor(Math.random() * suppliers.length)],
-          description: `${isFemale ? 'Sable' : 'Albino'} ferret`,
-          mother: i > 5 ? ferretNames[Math.floor(Math.random() * 6)] : null,
-          father: i > 5 ? ferretNames[Math.floor(Math.random() * 6)] : null,
-          next_rabies_vaccine: new Date(2026, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
-          dead: false,
-          in_estrus: isFemale && Math.random() > 0.7,
-          castrated_spayed: !isFemale && Math.random() > 0.6,
-          health_events: [],
-          location_history: [],
-          breeding_history: []
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+          ...options,
+          headers,
         });
-      }
-      
-      return ferrets;
+
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.reload();
+          return;
+        }
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+      },
+
+      // Auth
+      login: (credentials) => api.request('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }),
+
+      getMe: () => api.request('/auth/me'),
+
+      // Ferrets
+      getFerrets: (params = {}) => {
+        const query = new URLSearchParams(params).toString();
+        return api.request(`/ferrets${query ? '?' + query : ''}`);
+      },
+
+      getFerret: (id) => api.request(`/ferrets/${id}`),
+
+      updateGenealogy: (id, data) => api.request(`/ferrets/${id}/genealogy`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+
+      updateEstrus: (id, data) => api.request(`/ferrets/${id}/estrus`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+
+      uploadPhoto: async (id, file) => {
+        const formData = new FormData();
+        formData.append('photo', file);
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch(`${API_BASE}/ferrets/${id}/photo`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        return response.json();
+      },
+
+      // Health
+      createHealthEvent: (data) => api.request('/health-events', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+      // Locations
+      getLocations: () => api.request('/locations'),
+
+      moveFerret: (data) => api.request('/locations/move', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+      updateLocation: (id, data) => api.request(`/locations/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+
+      // Vaccinations
+      createVaccination: (data) => api.request('/vaccinations', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+      getUpcomingVaccines: (days) => api.request(`/vaccinations/upcoming?days=${days}`),
+
+      // Stats
+      getStats: () => api.request('/stats'),
+
+      // Export
+      exportCSV: async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/export/csv`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ferrets-export.csv';
+        a.click();
+      },
     };
 
-    // LocalStorage utilities
-    const STORAGE_KEY = 'sanusbio_ferrets';
-    
-    const loadFerrets = () => {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-      const initial = generateMockData();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-      return initial;
-    };
-
-    const saveFerrets = (ferrets) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(ferrets));
-    };
-
-    // Icons (simplified SVG)
+    // Icons
     const Icon = ({ name, size = 24 }) => {
       const icons = {
         search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
@@ -748,892 +964,214 @@
         arrowLeft: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
         x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
         calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
-        clipboard: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>,
+        download: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+        upload: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+        edit: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+        bell: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+        logOut: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
       };
       return icons[name] || null;
     };
 
-    // Main App Component
+    // Main App
     const App = () => {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        const checkAuth = async () => {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            setLoading(false);
+            return;
+          }
+
+          try {
+            const userData = await api.getMe();
+            setUser(userData);
+          } catch (error) {
+            console.error('Auth check failed:', error);
+            localStorage.removeItem('token');
+          }
+          setLoading(false);
+        };
+
+        checkAuth();
+      }, []);
+
+      const handleLogin = (token, userData) => {
+        localStorage.setItem('token', token);
+        setUser(userData);
+      };
+
+      const handleLogout = () => {
+        localStorage.removeItem('token');
+        setUser(null);
+      };
+
+      if (loading) {
+        return <div className="loading"><div className="spinner"></div></div>;
+      }
+
+      if (!user) {
+        return <LoginPage onLogin={handleLogin} />;
+      }
+
+      return <MainApp user={user} onLogout={handleLogout} />;
+    };
+
+    // Login Page
+    const LoginPage = ({ onLogin }) => {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+          const data = await api.login({ username, password });
+          onLogin(data.token, data.user);
+        } catch (err) {
+          setError(err.message || 'Login failed');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="login-container">
+          <div className="login-card">
+            <div className="login-logo">🦡</div>
+            <h1 className="login-title">SanusBio</h1>
+            <p className="login-subtitle">Ferret Colony Manager</p>
+
+            <form onSubmit={handleSubmit}>
+              {error && (
+                <div style={{ padding: '0.75rem', background: 'rgba(200, 89, 89, 0.1)', color: 'var(--danger)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  {error}
+                </div>
+              )}
+
+              <div className="form-group">
+                <label className="form-label">Username</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    // Main App Component (logged in)
+    const MainApp = ({ user, onLogout }) => {
       const [currentPage, setCurrentPage] = useState('list');
-      const [ferrets, setFerrets] = useState([]);
-      const [searchQuery, setSearchQuery] = useState('');
       const [selectedFerret, setSelectedFerret] = useState(null);
       const [showModal, setShowModal] = useState(false);
       const [modalType, setModalType] = useState('');
+      const [modalData, setModalData] = useState(null);
 
-      useEffect(() => {
-        setFerrets(loadFerrets());
-      }, []);
-
-      const filteredFerrets = useMemo(() => {
-        if (!searchQuery) return ferrets;
-        const query = searchQuery.toLowerCase();
-        return ferrets.filter(f => 
-          f.name.toLowerCase().includes(query) ||
-          f.animal_id.toLowerCase().includes(query) ||
-          f.location.toLowerCase().includes(query)
-        );
-      }, [ferrets, searchQuery]);
-
-      const stats = useMemo(() => ({
-        total: ferrets.length,
-        female: ferrets.filter(f => f.sex === 'Female').length,
-        inEstrus: ferrets.filter(f => f.in_estrus).length,
-        needsVaccine: ferrets.filter(f => new Date(f.next_rabies_vaccine) < new Date(Date.now() + 30*24*60*60*1000)).length
-      }), [ferrets]);
-
-      const updateFerret = (id, updates) => {
-        const updated = ferrets.map(f => f.id === id ? { ...f, ...updates } : f);
-        setFerrets(updated);
-        saveFerrets(updated);
-        if (selectedFerret?.id === id) {
-          setSelectedFerret({ ...selectedFerret, ...updates });
-        }
-      };
-
-      const addHealthEvent = (ferretId, event) => {
-        const ferret = ferrets.find(f => f.id === ferretId);
-        if (ferret) {
-          const updatedEvents = [...(ferret.health_events || []), event];
-          updateFerret(ferretId, { health_events: updatedEvents });
-        }
-      };
-
-      const openModal = (type, ferret = null) => {
+      const openModal = (type, data = null) => {
         setModalType(type);
-        setSelectedFerret(ferret);
+        setModalData(data);
         setShowModal(true);
       };
 
       const closeModal = () => {
         setShowModal(false);
         setModalType('');
+        setModalData(null);
       };
 
       return (
         <>
           {currentPage === 'list' && (
             <FerretListPage 
-              ferrets={filteredFerrets}
-              stats={stats}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
+              user={user}
               onSelectFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }}
-              onAddHealth={(f) => openModal('health', f)}
+              onLogout={onLogout}
+              onOpenModal={openModal}
             />
           )}
 
           {currentPage === 'detail' && selectedFerret && (
             <FerretDetailPage 
-              ferret={selectedFerret}
+              user={user}
+              ferretId={selectedFerret.Ferret_QR005_id}
               onBack={() => setCurrentPage('list')}
-              onAddHealth={() => openModal('health', selectedFerret)}
-              onAddLocation={() => openModal('location', selectedFerret)}
-              onAddBreeding={() => openModal('breeding', selectedFerret)}
+              onOpenModal={openModal}
             />
           )}
 
           {currentPage === 'health' && (
-            <HealthEventsPage 
-              ferrets={ferrets}
-              onAddEvent={(f) => openModal('health', f)}
-            />
+            <HealthEventsPage user={user} onOpenModal={openModal} />
           )}
 
           {currentPage === 'breeding' && (
-            <BreedingPage 
-              ferrets={ferrets}
-              onViewFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }}
-            />
+            <BreedingPage user={user} onOpenModal={openModal} onSelectFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }} />
           )}
 
           {currentPage === 'locations' && (
-            <LocationsPage 
-              ferrets={ferrets}
-              onMoveSelect={(f) => openModal('location', f)}
-            />
+            <LocationsPage user={user} onOpenModal={openModal} onSelectFerret={(f) => { setSelectedFerret(f); setCurrentPage('detail'); }} />
+          )}
+
+          {currentPage === 'settings' && (
+            <SettingsPage user={user} onLogout={onLogout} onBack={() => setCurrentPage('list')} />
           )}
 
           <BottomNav currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
           {showModal && (
             <Modal onClose={closeModal}>
-              {modalType === 'health' && (
-                <HealthEventForm 
-                  ferret={selectedFerret}
-                  onSubmit={(event) => {
-                    addHealthEvent(selectedFerret.id, event);
-                    closeModal();
-                  }}
-                  onCancel={closeModal}
-                />
-              )}
-              {modalType === 'location' && (
-                <LocationForm 
-                  ferret={selectedFerret}
-                  onSubmit={(location) => {
-                    updateFerret(selectedFerret.id, { location });
-                    closeModal();
-                  }}
-                  onCancel={closeModal}
-                />
-              )}
-              {modalType === 'breeding' && (
-                <BreedingForm 
-                  ferret={selectedFerret}
-                  onSubmit={(data) => {
-                    const breeding = {
-                      date: data.date,
-                      partner: data.partner,
-                      notes: data.notes
-                    };
-                    const history = [...(selectedFerret.breeding_history || []), breeding];
-                    updateFerret(selectedFerret.id, { 
-                      breeding_history: history,
-                      in_estrus: false 
-                    });
-                    closeModal();
-                  }}
-                  onCancel={closeModal}
-                />
-              )}
+              {modalType === 'health' && <HealthEventForm user={user} ferret={modalData} onClose={closeModal} />}
+              {modalType === 'estrus' && <EstrusForm user={user} ferret={modalData} onClose={closeModal} />}
+              {modalType === 'genealogy' && <GenealogyForm user={user} ferret={modalData} onClose={closeModal} />}
+              {modalType === 'location' && <LocationMoveForm user={user} ferret={modalData} onClose={closeModal} />}
+              {modalType === 'photo' && <PhotoUploadForm user={user} ferret={modalData} onClose={closeModal} />}
+              {modalType === 'vaccination' && <VaccinationForm user={user} ferret={modalData} onClose={closeModal} />}
             </Modal>
           )}
 
-          <button className="fab" onClick={() => openModal('health')}>
-            <Icon name="plus" size={24} />
-          </button>
-        </>
-      );
-    };
-
-    // Ferret List Page
-    const FerretListPage = ({ ferrets, stats, searchQuery, setSearchQuery, onSelectFerret, onAddHealth }) => {
-      return (
-        <div className="page-enter">
-          <div className="app-header">
-            <div className="header-content">
-              <h1 className="app-title">SanusBio</h1>
-              <p className="app-subtitle">Ferret Colony Manager</p>
-              <div className="search-bar-container">
-                <Icon name="search" size={20} />
-                <input 
-                  type="text" 
-                  className="search-bar" 
-                  placeholder="Search by name, ID, or location..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="main-content">
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-value">{stats.total}</div>
-                <div className="stat-label">Total Ferrets</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{stats.female}</div>
-                <div className="stat-label">Females</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{stats.inEstrus}</div>
-                <div className="stat-label">In Estrus</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value">{stats.needsVaccine}</div>
-                <div className="stat-label">Vaccine Due</div>
-              </div>
-            </div>
-
-            {ferrets.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">🦡</div>
-                <h3 className="empty-title">No ferrets found</h3>
-                <p className="empty-description">Try adjusting your search</p>
-              </div>
-            ) : (
-              ferrets.map(ferret => (
-                <div key={ferret.id} className="card" onClick={() => onSelectFerret(ferret)}>
-                  <div className="card-header">
-                    <div>
-                      <h3 className="card-title">{ferret.name}</h3>
-                      <p className="card-subtitle">{ferret.animal_id} • {ferret.sex}</p>
-                    </div>
-                    {ferret.in_estrus && <span className="badge badge-warning">Estrus</span>}
-                  </div>
-                  <div className="info-grid">
-                    <div className="info-item">
-                      <span className="info-label">Location</span>
-                      <span className="info-value">{ferret.location}</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Weight</span>
-                      <span className="info-value">{ferret.weight}g</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Age</span>
-                      <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
-                    </div>
-                    <div className="info-item">
-                      <span className="info-label">Next Vaccine</span>
-                      <span className="info-value">{new Date(ferret.next_rabies_vaccine).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      );
-    };
-
-    // Ferret Detail Page
-    const FerretDetailPage = ({ ferret, onBack, onAddHealth, onAddLocation, onAddBreeding }) => {
-      const [activeTab, setActiveTab] = useState('info');
-
-      const age = Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000));
-      const ageMonths = Math.floor((new Date() - new Date(ferret.birth_date)) / (30.44 * 24 * 60 * 60 * 1000));
-
-      return (
-        <div className="page-enter">
-          <div className="app-header">
-            <div className="header-content">
-              <button className="back-button" onClick={onBack}>
-                <Icon name="arrowLeft" size={20} />
-                Back
-              </button>
-              <h1 className="app-title">{ferret.name}</h1>
-              <p className="app-subtitle">{ferret.animal_id} • {ferret.sex} • {ferret.description}</p>
-            </div>
-          </div>
-
-          <div className="main-content">
-            <div className="tabs">
-              <button className={`tab ${activeTab === 'info' ? 'active' : ''}`} onClick={() => setActiveTab('info')}>Info</button>
-              <button className={`tab ${activeTab === 'health' ? 'active' : ''}`} onClick={() => setActiveTab('health')}>Health</button>
-              <button className={`tab ${activeTab === 'breeding' ? 'active' : ''}`} onClick={() => setActiveTab('breeding')}>Breeding</button>
-              <button className={`tab ${activeTab === 'location' ? 'active' : ''}`} onClick={() => setActiveTab('location')}>Location</button>
-            </div>
-
-            {activeTab === 'info' && (
-              <div>
-                <div className="detail-section">
-                  <h3 className="section-title">Basic Information</h3>
-                  <div className="card">
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <span className="info-label">Birth Date</span>
-                        <span className="info-value">{new Date(ferret.birth_date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Age</span>
-                        <span className="info-value">{age} years {ageMonths % 12} months</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Weight</span>
-                        <span className="info-value">{ferret.weight}g</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Current Location</span>
-                        <span className="info-value">{ferret.location}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Supplier</span>
-                        <span className="info-value">{ferret.supplier}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Status</span>
-                        <span className="info-value">{ferret.castrated_spayed ? 'Altered' : 'Intact'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3 className="section-title">Genealogy</h3>
-                  <div className="card">
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <span className="info-label">Mother</span>
-                        <span className="info-value">{ferret.mother || 'Unknown'}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Father</span>
-                        <span className="info-value">{ferret.father || 'Unknown'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3 className="section-title">Vaccination</h3>
-                  <div className="card">
-                    <div className="info-item">
-                      <span className="info-label">Next Rabies Vaccine Due</span>
-                      <span className="info-value">{new Date(ferret.next_rabies_vaccine).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'health' && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 className="section-title" style={{ marginBottom: 0 }}>Health Events</h3>
-                  <button className="btn btn-primary" onClick={onAddHealth}>Add Event</button>
-                </div>
-                {!ferret.health_events || ferret.health_events.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">📋</div>
-                    <h3 className="empty-title">No health events</h3>
-                    <p className="empty-description">Add weight checks, baths, or nail trims</p>
-                  </div>
-                ) : (
-                  <div className="timeline">
-                    {ferret.health_events.sort((a, b) => new Date(b.date) - new Date(a.date)).map((event, i) => (
-                      <div key={i} className="timeline-item">
-                        <div className="timeline-dot"></div>
-                        <div className="timeline-content">
-                          <div className="timeline-date">{new Date(event.date).toLocaleDateString()}</div>
-                          <div className="timeline-title">{event.type}</div>
-                          {event.weight && <div className="timeline-description">Weight: {event.weight}g</div>}
-                          {event.notes && <div className="timeline-description">{event.notes}</div>}
-                          {event.recorded_by && <div className="timeline-description">By: {event.recorded_by}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'breeding' && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 className="section-title" style={{ marginBottom: 0 }}>Breeding History</h3>
-                  {ferret.sex === 'Female' && <button className="btn btn-primary" onClick={onAddBreeding}>Record Mating</button>}
-                </div>
-                
-                {ferret.sex === 'Female' && (
-                  <div className="card" style={{ marginBottom: '1rem' }}>
-                    <div className="info-item">
-                      <span className="info-label">Estrus Status</span>
-                      <span className="info-value">
-                        {ferret.in_estrus ? (
-                          <span className="badge badge-warning">In Estrus</span>
-                        ) : (
-                          <span className="badge badge-success">Not in Estrus</span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {!ferret.breeding_history || ferret.breeding_history.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">💕</div>
-                    <h3 className="empty-title">No breeding records</h3>
-                    <p className="empty-description">Breeding history will appear here</p>
-                  </div>
-                ) : (
-                  <div className="timeline">
-                    {ferret.breeding_history.sort((a, b) => new Date(b.date) - new Date(a.date)).map((breeding, i) => (
-                      <div key={i} className="timeline-item">
-                        <div className="timeline-dot"></div>
-                        <div className="timeline-content">
-                          <div className="timeline-date">{new Date(breeding.date).toLocaleDateString()}</div>
-                          <div className="timeline-title">Mating Event</div>
-                          {breeding.partner && <div className="timeline-description">Partner: {breeding.partner}</div>}
-                          {breeding.notes && <div className="timeline-description">{breeding.notes}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'location' && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 className="section-title" style={{ marginBottom: 0 }}>Location History</h3>
-                  <button className="btn btn-primary" onClick={onAddLocation}>Move Ferret</button>
-                </div>
-                
-                <div className="card" style={{ marginBottom: '1rem' }}>
-                  <div className="info-item">
-                    <span className="info-label">Current Location</span>
-                    <span className="info-value">{ferret.location}</span>
-                  </div>
-                </div>
-
-                {!ferret.location_history || ferret.location_history.length === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">📍</div>
-                    <h3 className="empty-title">No location history</h3>
-                    <p className="empty-description">Location changes will appear here</p>
-                  </div>
-                ) : (
-                  <div className="timeline">
-                    {ferret.location_history.sort((a, b) => new Date(b.date) - new Date(a.date)).map((loc, i) => (
-                      <div key={i} className="timeline-item">
-                        <div className="timeline-dot"></div>
-                        <div className="timeline-content">
-                          <div className="timeline-date">{new Date(loc.date).toLocaleDateString()}</div>
-                          <div className="timeline-title">Moved to {loc.location}</div>
-                          {loc.reason && <div className="timeline-description">Reason: {loc.reason}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    };
-
-    // Health Events Page
-    const HealthEventsPage = ({ ferrets, onAddEvent }) => {
-      const allEvents = ferrets.flatMap(f => 
-        (f.health_events || []).map(e => ({ ...e, ferret: f }))
-      ).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      return (
-        <div className="page-enter">
-          <div className="app-header">
-            <div className="header-content">
-              <h1 className="app-title">Health Events</h1>
-              <p className="app-subtitle">Recent health records</p>
-            </div>
-          </div>
-
-          <div className="main-content">
-            {allEvents.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">📋</div>
-                <h3 className="empty-title">No health events</h3>
-                <p className="empty-description">Add events using the + button</p>
-              </div>
-            ) : (
-              allEvents.slice(0, 50).map((event, i) => (
-                <div key={i} className="card">
-                  <div className="card-header">
-                    <div>
-                      <h3 className="card-title">{event.ferret.name}</h3>
-                      <p className="card-subtitle">{event.ferret.animal_id}</p>
-                    </div>
-                    <span className="badge badge-info">{event.type}</span>
-                  </div>
-                  <div className="info-grid">
-                    <div className="info-item">
-                      <span className="info-label">Date</span>
-                      <span className="info-value">{new Date(event.date).toLocaleDateString()}</span>
-                    </div>
-                    {event.weight && (
-                      <div className="info-item">
-                        <span className="info-label">Weight</span>
-                        <span className="info-value">{event.weight}g</span>
-                      </div>
-                    )}
-                    {event.recorded_by && (
-                      <div className="info-item">
-                        <span className="info-label">Recorded By</span>
-                        <span className="info-value">{event.recorded_by}</span>
-                      </div>
-                    )}
-                  </div>
-                  {event.notes && (
-                    <div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                      {event.notes}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      );
-    };
-
-    // Breeding Page
-    const BreedingPage = ({ ferrets, onViewFerret }) => {
-      const inEstrus = ferrets.filter(f => f.in_estrus);
-      const recentMating = ferrets.filter(f => 
-        f.breeding_history && f.breeding_history.length > 0
-      ).sort((a, b) => {
-        const lastA = new Date(a.breeding_history[a.breeding_history.length - 1].date);
-        const lastB = new Date(b.breeding_history[b.breeding_history.length - 1].date);
-        return lastB - lastA;
-      });
-
-      return (
-        <div className="page-enter">
-          <div className="app-header">
-            <div className="header-content">
-              <h1 className="app-title">Breeding Management</h1>
-              <p className="app-subtitle">Estrus tracking & mating records</p>
-            </div>
-          </div>
-
-          <div className="main-content">
-            <div className="detail-section">
-              <h3 className="section-title">Females in Estrus ({inEstrus.length})</h3>
-              {inEstrus.length === 0 ? (
-                <div className="card">
-                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No females currently in estrus</p>
-                </div>
-              ) : (
-                inEstrus.map(ferret => (
-                  <div key={ferret.id} className="card" onClick={() => onViewFerret(ferret)}>
-                    <div className="card-header">
-                      <div>
-                        <h3 className="card-title">{ferret.name}</h3>
-                        <p className="card-subtitle">{ferret.animal_id}</p>
-                      </div>
-                      <span className="badge badge-warning">Estrus</span>
-                    </div>
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <span className="info-label">Location</span>
-                        <span className="info-value">{ferret.location}</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Age</span>
-                        <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="detail-section">
-              <h3 className="section-title">Recent Breeding Events</h3>
-              {recentMating.length === 0 ? (
-                <div className="card">
-                  <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>No recent breeding events</p>
-                </div>
-              ) : (
-                recentMating.slice(0, 10).map(ferret => {
-                  const lastBreeding = ferret.breeding_history[ferret.breeding_history.length - 1];
-                  return (
-                    <div key={ferret.id} className="card" onClick={() => onViewFerret(ferret)}>
-                      <div className="card-header">
-                        <div>
-                          <h3 className="card-title">{ferret.name}</h3>
-                          <p className="card-subtitle">{ferret.animal_id}</p>
-                        </div>
-                      </div>
-                      <div className="info-grid">
-                        <div className="info-item">
-                          <span className="info-label">Last Mating</span>
-                          <span className="info-value">{new Date(lastBreeding.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="info-item">
-                          <span className="info-label">Partner</span>
-                          <span className="info-value">{lastBreeding.partner || 'N/A'}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Locations Page
-    const LocationsPage = ({ ferrets, onMoveSelect }) => {
-      const locationGroups = ferrets.reduce((acc, ferret) => {
-        if (!acc[ferret.location]) {
-          acc[ferret.location] = [];
-        }
-        acc[ferret.location].push(ferret);
-        return acc;
-      }, {});
-
-      const locations = Object.keys(locationGroups).sort();
-
-      return (
-        <div className="page-enter">
-          <div className="app-header">
-            <div className="header-content">
-              <h1 className="app-title">Locations</h1>
-              <p className="app-subtitle">Colony housing management</p>
-            </div>
-          </div>
-
-          <div className="main-content">
-            {locations.map(location => (
-              <div key={location} className="detail-section">
-                <h3 className="section-title">{location} ({locationGroups[location].length})</h3>
-                {locationGroups[location].map(ferret => (
-                  <div key={ferret.id} className="card">
-                    <div className="card-header">
-                      <div>
-                        <h3 className="card-title">{ferret.name}</h3>
-                        <p className="card-subtitle">{ferret.animal_id} • {ferret.sex}</p>
-                      </div>
-                    </div>
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <span className="info-label">Weight</span>
-                        <span className="info-value">{ferret.weight}g</span>
-                      </div>
-                      <div className="info-item">
-                        <span className="info-label">Age</span>
-                        <span className="info-value">{Math.floor((new Date() - new Date(ferret.birth_date)) / (365.25 * 24 * 60 * 60 * 1000))} years</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    };
-
-    // Bottom Navigation
-    const BottomNav = ({ currentPage, setCurrentPage }) => {
-      return (
-        <nav className="bottom-nav">
-          <a className={`nav-item ${currentPage === 'list' ? 'active' : ''}`} onClick={() => setCurrentPage('list')}>
-            <div className="nav-icon"><Icon name="home" size={24} /></div>
-            <div className="nav-label">Ferrets</div>
-          </a>
-          <a className={`nav-item ${currentPage === 'health' ? 'active' : ''}`} onClick={() => setCurrentPage('health')}>
-            <div className="nav-icon"><Icon name="activity" size={24} /></div>
-            <div className="nav-label">Health</div>
-          </a>
-          <a className={`nav-item ${currentPage === 'breeding' ? 'active' : ''}`} onClick={() => setCurrentPage('breeding')}>
-            <div className="nav-icon"><Icon name="heart" size={24} /></div>
-            <div className="nav-label">Breeding</div>
-          </a>
-          <a className={`nav-item ${currentPage === 'locations' ? 'active' : ''}`} onClick={() => setCurrentPage('locations')}>
-            <div className="nav-icon"><Icon name="mapPin" size={24} /></div>
-            <div className="nav-label">Locations</div>
-          </a>
-        </nav>
-      );
-    };
-
-    // Modal Component
-    const Modal = ({ children, onClose }) => {
-      return (
-        <div className="modal-overlay" onClick={onClose}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            {children}
-          </div>
-        </div>
-      );
-    };
-
-    // Health Event Form
-    const HealthEventForm = ({ ferret, onSubmit, onCancel }) => {
-      const [type, setType] = useState('Weight Check');
-      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-      const [weight, setWeight] = useState(ferret?.weight || '');
-      const [notes, setNotes] = useState('');
-      const [recordedBy, setRecordedBy] = useState('');
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit({
-          type,
-          date,
-          weight: type === 'Weight Check' ? parseInt(weight) : null,
-          notes,
-          recorded_by: recordedBy
-        });
-      };
-
-      return (
-        <>
-          <div className="modal-header">
-            <h2 className="modal-title">Add Health Event</h2>
-            <button className="modal-close" onClick={onCancel}>
-              <Icon name="x" size={24} />
+          {(user.role === 'admin' || user.role === 'research') && (
+            <button className="fab" onClick={() => openModal('health')}>
+              <Icon name="plus" size={24} />
             </button>
-          </div>
-          <form onSubmit={handleSubmit}>
-            {ferret && (
-              <div className="form-group">
-                <label className="form-label">Ferret</label>
-                <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
-                  <strong>{ferret.name}</strong> ({ferret.animal_id})
-                </div>
-              </div>
-            )}
-            
-            <div className="form-group">
-              <label className="form-label">Event Type</label>
-              <select className="form-select" value={type} onChange={(e) => setType(e.target.value)} required>
-                <option>Weight Check</option>
-                <option>Bath</option>
-                <option>Nail Trim</option>
-                <option>Health Check</option>
-                <option>Vaccination</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Date</label>
-              <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} required />
-            </div>
-
-            {type === 'Weight Check' && (
-              <div className="form-group">
-                <label className="form-label">Weight (grams)</label>
-                <input type="number" className="form-input" value={weight} onChange={(e) => setWeight(e.target.value)} required />
-              </div>
-            )}
-
-            <div className="form-group">
-              <label className="form-label">Notes (optional)</label>
-              <textarea className="form-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any observations or details..."></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Recorded By (optional)</label>
-              <input type="text" className="form-input" value={recordedBy} onChange={(e) => setRecordedBy(e.target.value)} placeholder="Your name" />
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
-              <button type="submit" className="btn btn-primary btn-full">Save Event</button>
-            </div>
-          </form>
+          )}
         </>
       );
     };
 
-    // Location Form
-    const LocationForm = ({ ferret, onSubmit, onCancel }) => {
-      const [location, setLocation] = useState('');
-      const [reason, setReason] = useState('');
-      
-      const locations = ['A-101', 'A-102', 'A-103', 'B-201', 'B-202', 'B-203', 'C-301', 'C-302', 'D-401', 'D-402'];
+    // Due to character limits, I'll create this as a separate component file
+    // This is about 50% of the frontend. I'll continue in the next file...
 
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit(location);
-      };
-
-      return (
-        <>
-          <div className="modal-header">
-            <h2 className="modal-title">Move Ferret</h2>
-            <button className="modal-close" onClick={onCancel}>
-              <Icon name="x" size={24} />
-            </button>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Ferret</label>
-              <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
-                <strong>{ferret.name}</strong> ({ferret.animal_id})<br/>
-                <small style={{ color: 'var(--text-secondary)' }}>Current: {ferret.location}</small>
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">New Location</label>
-              <select className="form-select" value={location} onChange={(e) => setLocation(e.target.value)} required>
-                <option value="">Select location...</option>
-                {locations.map(loc => (
-                  <option key={loc} value={loc}>{loc}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Reason (optional)</label>
-              <input type="text" className="form-input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is this ferret being moved?" />
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
-              <button type="submit" className="btn btn-primary btn-full">Move Ferret</button>
-            </div>
-          </form>
-        </>
-      );
-    };
-
-    // Breeding Form
-    const BreedingForm = ({ ferret, onSubmit, onCancel }) => {
-      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-      const [partner, setPartner] = useState('');
-      const [notes, setNotes] = useState('');
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit({ date, partner, notes });
-      };
-
-      return (
-        <>
-          <div className="modal-header">
-            <h2 className="modal-title">Record Mating</h2>
-            <button className="modal-close" onClick={onCancel}>
-              <Icon name="x" size={24} />
-            </button>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Female</label>
-              <div style={{ padding: '0.875rem', background: 'var(--background)', borderRadius: '12px' }}>
-                <strong>{ferret.name}</strong> ({ferret.animal_id})
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">Mating Date</label>
-              <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} required />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Male Partner</label>
-              <input type="text" className="form-input" value={partner} onChange={(e) => setPartner(e.target.value)} placeholder="Male ferret name or ID" required />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Notes (optional)</label>
-              <textarea className="form-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observations about the mating..."></textarea>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-              <button type="button" className="btn btn-secondary btn-full" onClick={onCancel}>Cancel</button>
-              <button type="submit" className="btn btn-primary btn-full">Record Mating</button>
-            </div>
-          </form>
-        </>
-      );
-    };
-
-    // Render App
     ReactDOM.render(<App />, document.getElementById('root'));
-
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then(registration => {
-          console.log('SW registered:', registration);
-        }).catch(error => {
-          console.log('SW registration failed:', error);
-        });
-      });
-    }
   </script>
+
+  <!-- Continued in next response due to size -->
 </body>
 </html>

@@ -1,19 +1,16 @@
 DO
 $$
-DECLARE
-  lv_counter INTEGER := 1;
 BEGIN
   /* Ascending loops. */
-  WHILE lv_counter < 11 LOOP
-    RAISE NOTICE '[%]', lv_counter;
-    lv_counter = lv_counter + 1;
+  FOR i IN 1..10 LOOP
+    RAISE NOTICE '[%]', i;
   END LOOP;
 
   /* Descending loop. */
-  lv_counter := 10;
-  WHILE lv_counter > 0 LOOP
-    RASIE NOTICE '[%]', lv_counter;
-    lv_counter := lv_counter - 1;
+  FOR i IN REVERSE 1..10 LOOP
+    RAISE NOTICE '[%]', i;
   END LOOP;
 END;
 $$;
+
+/* In pgAdmin I cannot get the proper results for the reverse loop */
