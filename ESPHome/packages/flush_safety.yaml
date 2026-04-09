@@ -4,29 +4,73 @@ input_boolean:
     icon: mdi:water-sync
 
 automation:
-  - alias: "Flush Schedule - Twice Daily"
+  - alias: "Flush Schedule - Board 1"
     trigger:
       - platform: time
-        at: "06:00:00"                         # Morning flush
+        at: "06:00:00"
       - platform: time
-        at: "18:00:00"                         # Evening flush
+        at: "18:00:00"
     condition:
       - condition: state
         entity_id: input_boolean.flush_in_progress
-        state: "off"                           # Don't start if already running
+        state: "off"
     action:
-      - service: script.flush_sequence
+      - service: script.flush_board1
+
+  - alias: "Flush Schedule - Board 2"
+    trigger:
+      - platform: time
+        at: "06:30:00"                         # Offset 30min after board 1
+      - platform: time
+        at: "18:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.flush_in_progress
+        state: "off"
+    action:
+      - service: script.flush_board2
+
+  - alias: "Flush Schedule - Board 3"
+    trigger:
+      - platform: time
+        at: "07:00:00"                         # Offset 30min after board 2
+      - platform: time
+        at: "19:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.flush_in_progress
+        state: "off"
+    action:
+      - service: script.flush_board3
 
   - alias: "Prevent Concurrent Flush"
     trigger:
       - platform: state
         entity_id:
-          - switch.valve1_open
-          - switch.valve1_close
-          - switch.valve2_open
-          - switch.valve2_close
-          - switch.valve3_open
-          - switch.valve3_close
+          - switch.board1_relay1
+          - switch.board1_relay2
+          - switch.board1_relay3
+          - switch.board1_relay4
+          - switch.board1_relay5
+          - switch.board1_relay6
+          - switch.board1_relay7
+          - switch.board1_relay8
+          - switch.board2_relay1
+          - switch.board2_relay2
+          - switch.board2_relay3
+          - switch.board2_relay4
+          - switch.board2_relay5
+          - switch.board2_relay6
+          - switch.board2_relay7
+          - switch.board2_relay8
+          - switch.board3_relay1
+          - switch.board3_relay2
+          - switch.board3_relay3
+          - switch.board3_relay4
+          - switch.board3_relay5
+          - switch.board3_relay6
+          - switch.board3_relay7
+          - switch.board3_relay8
         to: "on"
     condition:
       - condition: state
