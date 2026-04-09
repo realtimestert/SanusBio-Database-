@@ -3,26 +3,30 @@ script:
     alias: "Flush Sequence"
     sequence:
 
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.flush_in_progress
+
       # --- Valve 1 ---
       - service: switch.turn_on
         target:
-          entity_id: switch.valve1_open       # Forward: opens valve
-      - delay: "00:00:00.500"                  # Hold for 0.5s
+          entity_id: switch.valve1_open
+      - delay: "00:00:00.500"                  # 0.5s open pulse
       - service: switch.turn_off
         target:
-          entity_id: switch.valve1_open        # Cut power to forward relay
+          entity_id: switch.valve1_open
 
-      - delay: "00:00:30"                      # 30s before reversing
+      - delay: "00:00:20"                      # 20s flush duration
 
       - service: switch.turn_on
         target:
-          entity_id: switch.valve1_close       # Reverse: closes valve
-      - delay: "00:00:00.500"                  # Hold for 0.5s
+          entity_id: switch.valve1_close
+      - delay: "00:00:00.500"                  # 0.5s close pulse
       - service: switch.turn_off
         target:
-          entity_id: switch.valve1_close       # Cut power to reverse relay
+          entity_id: switch.valve1_close
 
-      - delay: "00:20:00"                      # 20-min refill before next valve
+      - delay: "00:00:20"                      # 20s between drain cycles
 
       # --- Valve 2 ---
       - service: switch.turn_on
@@ -33,7 +37,7 @@ script:
         target:
           entity_id: switch.valve2_open
 
-      - delay: "00:00:30"
+      - delay: "00:00:20"
 
       - service: switch.turn_on
         target:
@@ -43,7 +47,7 @@ script:
         target:
           entity_id: switch.valve2_close
 
-      - delay: "00:20:00"
+      - delay: "00:00:20"
 
       # --- Valve 3 ---
       - service: switch.turn_on
@@ -54,7 +58,7 @@ script:
         target:
           entity_id: switch.valve3_open
 
-      - delay: "00:00:30"
+      - delay: "00:00:20"
 
       - service: switch.turn_on
         target:
@@ -65,6 +69,10 @@ script:
           entity_id: switch.valve3_close
 
       # --- Done ---
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.flush_in_progress
+
       - service: notify.mobile_app_your_phone
         data:
           message: "Flush cycle complete"

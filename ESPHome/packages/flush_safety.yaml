@@ -1,0 +1,39 @@
+input_boolean:
+  flush_in_progress:
+    name: "Flush In Progress"
+    icon: mdi:water-sync
+
+automation:
+  - alias: "Flush Schedule - Twice Daily"
+    trigger:
+      - platform: time
+        at: "06:00:00"                         # Morning flush
+      - platform: time
+        at: "18:00:00"                         # Evening flush
+    condition:
+      - condition: state
+        entity_id: input_boolean.flush_in_progress
+        state: "off"                           # Don't start if already running
+    action:
+      - service: script.flush_sequence
+
+  - alias: "Prevent Concurrent Flush"
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.valve1_open
+          - switch.valve1_close
+          - switch.valve2_open
+          - switch.valve2_close
+          - switch.valve3_open
+          - switch.valve3_close
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.flush_in_progress
+        state: "on"
+    action:
+      - service: logbook.log
+        data:
+          name: "Flush Error"
+          message: "Attempted concurrent flush — blocked"

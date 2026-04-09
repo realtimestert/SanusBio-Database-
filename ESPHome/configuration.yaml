@@ -1,2 +1,6 @@
 homeassistant:
   packages: !include_dir_named packages/
+
+# These default lines are likely already in there — keep them
+automation: !include automations.yaml
+script: !include scripts.yaml
