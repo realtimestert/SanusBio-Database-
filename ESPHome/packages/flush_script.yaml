@@ -10,84 +10,84 @@ script:
       # --- Board 1 Valve 1 ---
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay1      # valve1 open
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay1      # valve1 open
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay1
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay1
 
       - delay: "00:00:20"                      # 20s flush
 
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay2      # valve1 close
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay2      # valve1 close
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay2
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay2
 
       - delay: "00:00:20"                      # 20s between valves
 
       # --- Board 1 Valve 2 ---
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay3
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay3
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay3
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay3
 
       - delay: "00:00:20"
 
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay4
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay4
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay4
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay4
 
       - delay: "00:00:20"
 
       # --- Board 1 Valve 3 ---
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay5
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay5
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay5
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay5
 
       - delay: "00:00:20"
 
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay6
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay6
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay6
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay6
 
       - delay: "00:00:20"
 
       # --- Board 1 Valve 4 ---
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay7
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay7
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay7
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay7
 
       - delay: "00:00:20"
 
       - service: switch.turn_on
         target:
-          entity_id: switch.board1_relay8
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay8
       - delay: "00:00:00.500"
       - service: switch.turn_off
         target:
-          entity_id: switch.board1_relay8
+          entity_id: switch.athom_8ch_relay_board_b0a984_relay8
 
       - service: input_boolean.turn_off
         target:
@@ -97,198 +97,5 @@ script:
         data:
           message: "Board 1 flush complete"
 
-
-  flush_board2:
-    alias: "Flush Board 2"
-    sequence:
-      - service: input_boolean.turn_on
-        target:
-          entity_id: input_boolean.flush_in_progress
-
-      # --- Board 2 Valve 1 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay1
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay1
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay2
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay2
-
-      - delay: "00:00:20"
-
-      # --- Board 2 Valve 2 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay3
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay3
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay4
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay4
-
-      - delay: "00:00:20"
-
-      # --- Board 2 Valve 3 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay5
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay5
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay6
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay6
-
-      - delay: "00:00:20"
-
-      # --- Board 2 Valve 4 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay7
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay7
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board2_relay8
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board2_relay8
-
-      - service: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.flush_in_progress
-
-      - service: notify.mobile_app_your_phone
-        data:
-          message: "Board 2 flush complete"
-
-
-  flush_board3:
-    alias: "Flush Board 3"
-    sequence:
-      - service: input_boolean.turn_on
-        target:
-          entity_id: input_boolean.flush_in_progress
-
-      # --- Board 3 Valve 1 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay1
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay1
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay2
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay2
-
-      - delay: "00:00:20"
-
-      # --- Board 3 Valve 2 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay3
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay3
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay4
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay4
-
-      - delay: "00:00:20"
-
-      # --- Board 3 Valve 3 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay5
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay5
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay6
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay6
-
-      - delay: "00:00:20"
-
-      # --- Board 3 Valve 4 ---
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay7
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay7
-
-      - delay: "00:00:20"
-
-      - service: switch.turn_on
-        target:
-          entity_id: switch.board3_relay8
-      - delay: "00:00:00.500"
-      - service: switch.turn_off
-        target:
-          entity_id: switch.board3_relay8
-
-      - service: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.flush_in_progress
-
-      - service: notify.mobile_app_your_phone
-        data:
-          message: "Board 3 flush complete"
+  #flush_board2 when it arrives
+  #flush_board3 when it arrives

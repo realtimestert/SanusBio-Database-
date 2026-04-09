@@ -47,30 +47,16 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - switch.board1_relay1
-          - switch.board1_relay2
-          - switch.board1_relay3
-          - switch.board1_relay4
-          - switch.board1_relay5
-          - switch.board1_relay6
-          - switch.board1_relay7
-          - switch.board1_relay8
-          - switch.board2_relay1
-          - switch.board2_relay2
-          - switch.board2_relay3
-          - switch.board2_relay4
-          - switch.board2_relay5
-          - switch.board2_relay6
-          - switch.board2_relay7
-          - switch.board2_relay8
-          - switch.board3_relay1
-          - switch.board3_relay2
-          - switch.board3_relay3
-          - switch.board3_relay4
-          - switch.board3_relay5
-          - switch.board3_relay6
-          - switch.board3_relay7
-          - switch.board3_relay8
+          - switch.athom_8ch_relay_board_b0a984_relay1
+          - switch.athom_8ch_relay_board_b0a984_relay2
+          - switch.athom_8ch_relay_board_b0a984_relay3
+          - switch.athom_8ch_relay_board_b0a984_relay4
+          - switch.athom_8ch_relay_board_b0a984_relay5
+          - switch.athom_8ch_relay_board_b0a984_relay6
+          - switch.athom_8ch_relay_board_b0a984_relay7
+          - switch.athom_8ch_relay_board_b0a984_relay8
+          # Board 2 — add when hardware arrives
+          # Board 3 — add when hardware arrives
         to: "on"
     condition:
       - condition: state
