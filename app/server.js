@@ -1,12 +1,12 @@
 require('dotenv').config();
-const express  = require('express');
-const mysql    = require('mysql2/promise');
-const jwt      = require('jsonwebtoken');
-const bcrypt   = require('bcryptjs');
-const cors     = require('cors');
-const path     = require('path');
+const express = require('express');
+const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
+const path = require('path');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 4000;
 const SECRET = process.env.JWT_SECRET || 'change-this-secret';
 
@@ -15,13 +15,13 @@ app.use(cors());
 
 // ─── Database ─────────────────────────────────────────────────────────────────
 const pool = mysql.createPool({
-  host:             process.env.DB_HOST || 'localhost',
-  user:             process.env.DB_USER || 'root',
-  password:         process.env.DB_PASS || '',
-  database:         process.env.DB_NAME || 'sanusbio',
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || 'sanusbio',
   waitForConnections: true,
-  connectionLimit:  10,
-  charset:          'utf8mb4'
+  connectionLimit: 10,
+  charset: 'utf8mb4'
 });
 
 // ─── Role Permission Map ──────────────────────────────────────────────────────
@@ -30,8 +30,8 @@ const pool = mysql.createPool({
 //  maternity → read + write/update litter, estrus, health data; no delete
 //  caretaker → read (own view) + write health events + complete own assignments
 const PERMS = {
-  admin:     new Set(['read', 'write', 'update', 'delete', 'manage_users']),
-  research:  new Set(['read']),
+  admin: new Set(['read', 'write', 'update', 'delete', 'manage_users']),
+  research: new Set(['read']),
   maternity: new Set(['read', 'write', 'update']),
   caretaker: new Set(['read', 'write'])
 };
@@ -112,11 +112,11 @@ app.get('/api/me', authenticate, (req, res) => res.json(req.user));
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 app.get('/api/dashboard', authenticate, require_perm('read'), async (req, res) => {
   try {
-    const [[{ total }]]       = await pool.query("SELECT COUNT(*) as total FROM ferret_qr005 WHERE dead='0' OR dead IS NULL");
-    const [[{ deceased }]]    = await pool.query("SELECT COUNT(*) as deceased FROM ferret_qr005 WHERE dead='1'");
-    const [[{ overdue }]]     = await pool.query("SELECT COUNT(*) as overdue FROM assignments WHERE completed=0 AND due_date < CURDATE()");
-    const [[{ vacc_due }]]    = await pool.query("SELECT COUNT(*) as vacc_due FROM ferret_qr005 WHERE next_rabies_vaccine_due <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND (dead='0' OR dead IS NULL)");
-    const [recent_activity]   = await pool.query(`
+    const [[{ total }]] = await pool.query("SELECT COUNT(*) as total FROM ferret_qr005 WHERE dead='0' OR dead IS NULL");
+    const [[{ deceased }]] = await pool.query("SELECT COUNT(*) as deceased FROM ferret_qr005 WHERE dead='1'");
+    const [[{ overdue }]] = await pool.query("SELECT COUNT(*) as overdue FROM assignments WHERE completed=0 AND due_date < CURDATE()");
+    const [[{ vacc_due }]] = await pool.query("SELECT COUNT(*) as vacc_due FROM ferret_qr005 WHERE next_rabies_vaccine_due <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) AND (dead='0' OR dead IS NULL)");
+    const [recent_activity] = await pool.query(`
       SELECT al.action, al.details, al.created_at, u.username
       FROM activity_log al JOIN users u ON al.user_id = u.user_id
       ORDER BY al.created_at DESC LIMIT 10
@@ -185,16 +185,40 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
   try {
     await conn.beginTransaction();
     // Stub records for required FKs (tables lack AUTO_INCREMENT in original schema — fixed by migrations.sql)
-    const [mi]  = await conn.query('INSERT INTO medical_info () VALUES ()');
-    const [ec]  = await conn.query('INSERT INTO estrus_check_log () VALUES ()');
-    const [fm]  = await conn.query('INSERT INTO females_to_mate () VALUES ()');
-    const [hl]  = await conn.query('INSERT INTO health_log () VALUES ()');
+    const [mi] = await conn.query('INSERT INTO medical_info () VALUES ()');
+    const [ec] = await conn.query('INSERT INTO estrus_check_log () VALUES ()');
+    const [fm] = await conn.query('INSERT INTO females_to_mate () VALUES ()');
+    const [hl] = await conn.query('INSERT INTO health_log () VALUES ()');
 
     const {
       ferret_name, animal_id, birth_date, weight = 0, description,
       address_id, supplier_id, mother_name, father_name,
       next_rabies_vaccine_due, acquisition_by, photo_url
     } = req.body;
+
+    // If no address provided, find or create a default "Unassigned" address
+    let resolved_address_id = address_id || null;
+    if (!resolved_address_id) {
+      const [[existing]] = await conn.query("SELECT address_id FROM address WHERE cage_address = 'N/A' LIMIT 1");
+      if (existing) {
+        resolved_address_id = existing.address_id;
+      } else {
+        const [newAddr] = await conn.query("INSERT INTO address (room_id, cage_address) VALUES (0, 'N/A')");
+        resolved_address_id = newAddr.insertId;
+      }
+    }
+
+    // If no supplier provided, find or create a default "Unknown" supplier
+    let resolved_supplier_id = supplier_id || null;
+    if (!resolved_supplier_id) {
+      const [[existing]] = await conn.query("SELECT supplier_id FROM supplier WHERE supplier_name = 'Unknown' LIMIT 1");
+      if (existing) {
+        resolved_supplier_id = existing.supplier_id;
+      } else {
+        const [newSup] = await conn.query("INSERT INTO supplier (supplier_name) VALUES ('Unknown')");
+        resolved_supplier_id = newSup.insertId;
+      }
+    }
 
     const [r] = await conn.query(`
       INSERT INTO ferret_qr005
@@ -204,9 +228,9 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
          acquisition_by, photo_url, created_by, dead)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','0')
     `, [ferret_name, animal_id || null, birth_date, weight, description || null,
-        address_id, mi.insertId, ec.insertId, fm.insertId, hl.insertId,
-        supplier_id, mother_name || null, father_name || null,
-        next_rabies_vaccine_due || null, acquisition_by || null, photo_url || null]);
+      resolved_address_id, mi.insertId, ec.insertId, fm.insertId, hl.insertId,
+      resolved_supplier_id, mother_name || null, father_name || null,
+      next_rabies_vaccine_due || null, acquisition_by || null, photo_url || null]);
 
     await conn.commit();
     await log_activity(req.user.user_id, 'CREATE', 'ferret_qr005', r.insertId, `Created ferret: ${ferret_name}`);
@@ -328,8 +352,8 @@ app.post('/api/litters', authenticate, async (req, res) => {
         father, mother, anomalies_and_notes, created, created_by)
        VALUES (?,?,?,?,?,?,?,?,CURDATE(),?)`,
       [Ferret_QR005_id, litter_id || null, litter_date, kit_count || null,
-       stillborn || null, father || null, mother || null,
-       anomalies_and_notes || null, req.user.username]
+        stillborn || null, father || null, mother || null,
+        anomalies_and_notes || null, req.user.username]
     );
     await log_activity(req.user.user_id, 'CREATE', 'litter_log', r.insertId, `Litter for ferret #${Ferret_QR005_id}`);
     res.json({ id: r.insertId, message: 'Litter recorded' });
@@ -477,11 +501,11 @@ app.post('/api/users', authenticate, admin_only, async (req, res) => {
 app.put('/api/users/:id', authenticate, admin_only, async (req, res) => {
   const { email, role, full_name, active, password } = req.body;
   const sets = [], vals = [];
-  if (email       !== undefined) { sets.push('email = ?');     vals.push(email); }
-  if (role        !== undefined) { sets.push('role = ?');      vals.push(role); }
-  if (full_name   !== undefined) { sets.push('full_name = ?'); vals.push(full_name); }
-  if (active      !== undefined) { sets.push('active = ?');    vals.push(active); }
-  if (password)                  { sets.push('password = ?');  vals.push(await bcrypt.hash(password, 12)); }
+  if (email !== undefined) { sets.push('email = ?'); vals.push(email); }
+  if (role !== undefined) { sets.push('role = ?'); vals.push(role); }
+  if (full_name !== undefined) { sets.push('full_name = ?'); vals.push(full_name); }
+  if (active !== undefined) { sets.push('active = ?'); vals.push(active); }
+  if (password) { sets.push('password = ?'); vals.push(await bcrypt.hash(password, 12)); }
   if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
   vals.push(req.params.id);
   try {
