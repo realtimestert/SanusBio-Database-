@@ -7,6 +7,7 @@
     <title>SanusBio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --sidebar-w: 230px;
@@ -462,9 +463,14 @@
                         </select>
                     </div>
                     <div id="heWeightRow" class="mb-2"><label class="form-label">Weight (g)</label><input id="heWeight"
-                            type="number" class="form-control"></div>
-                    <div class="mb-2"><label class="form-label">Date</label><input id="heDate" type="date"
-                            class="form-control"></div>
+                            type="number" step="0.01" min="0" max="9999.99" class="form-control"
+                            placeholder="e.g. 850.5"></div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-7"><label class="form-label">Date</label><input id="heDate" type="date"
+                                class="form-control"></div>
+                        <div class="col-5"><label class="form-label">Time</label><input id="heTime" type="time"
+                                class="form-control"></div>
+                    </div>
                     <div class="mb-2"><label class="form-label">Notes</label><textarea id="heNotes" class="form-control"
                             rows="2"></textarea></div>
                 </div>
@@ -538,6 +544,53 @@
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button class="btn btn-primary" onclick="submitLitter()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Info Modal -->
+    <div class="modal fade" id="medModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Medical Info</h5><button class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="medFerretId">
+                    <input type="hidden" id="medInfoId">
+                    <h6 class="fw-semibold mb-2">Spay / Castration</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="form-label">Status</label>
+                            <select id="medSpayed" class="form-select">
+                                <option value="n">No</option>
+                                <option value="y">Yes</option>
+                            </select>
+                        </div>
+                        <div class="col-6"><label class="form-label">Procedure Date</label><input id="medSpayDate"
+                                type="date" class="form-control"></div>
+                    </div>
+                    <h6 class="fw-semibold mb-2">Last Exam</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><label class="form-label">Exam Date</label><input id="medExamDate"
+                                type="date" class="form-control"></div>
+                        <div class="col-6"><label class="form-label">Performed By</label><input id="medPerformedBy"
+                                class="form-control"></div>
+                        <div class="col-12"><label class="form-label">Exam Notes</label><textarea id="medExamLog"
+                                class="form-control" rows="2"></textarea></div>
+                    </div>
+                    <h6 class="fw-semibold mb-2">Orders / Treatments</h6>
+                    <div class="row g-2">
+                        <div class="col-12"><label class="form-label">Orders</label><input id="medOrders"
+                                class="form-control"></div>
+                        <div class="col-12"><label class="form-label">Treatments</label><input id="medTreatments"
+                                class="form-control"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitMedicalInfo()">Save</button>
                 </div>
             </div>
         </div>
@@ -910,6 +963,7 @@
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tHealth">Health Events</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tVacc">Vaccinations</button></li>
         ${isMat ? `<li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tLitter">Litter Logs</button></li>` : ''}
+        ${canUpdate() ? `<li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tMed">Medical Info</button></li>` : ''}
       </ul>
       <div class="tab-content">
 
@@ -917,16 +971,22 @@
           <div class="d-flex mb-2">
             ${canWrite() ? `<button class="btn btn-sm btn-primary ms-auto" onclick="openHealthModal(${id})"><i class="bi bi-plus-lg me-1"></i>Record Event</button>` : ''}
           </div>
+          ${health.filter(h => h.event_type === 'weight' && h.weight).length > 1 ? `
+          <div class="card mb-3 p-3">
+            <div class="fw-semibold small mb-2 text-muted">Weight Over Time (g)</div>
+            <canvas id="weightChart" height="90"></canvas>
+          </div>` : ''}
           <table class="table table-sm">
-            <thead><tr><th>Date</th><th>Type</th><th>Weight</th><th>Notes</th><th>Recorded By</th></tr></thead>
+            <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Weight</th><th>Notes</th><th>Recorded By</th></tr></thead>
             <tbody>${health.length ? health.map(h => `
               <tr>
-                <td>${h.event_date || '—'}</td>
-                <td><span class="badge bg-info text-dark">${h.event_type}</span></td>
+                <td>${fmtDate(h.event_date)}</td>
+                <td class="text-muted">${fmtTime(h.created_at)}</td>
+                <td><span class="badge bg-info text-dark">${h.event_type.replace('_', ' ')}</span></td>
                 <td>${h.weight ? h.weight + ' g' : '—'}</td>
                 <td>${h.notes || '—'}</td>
                 <td class="text-muted">${h.recorded_by || '—'}</td>
-              </tr>`).join('') : '<tr><td colspan="5" class="text-muted text-center py-3">No health events</td></tr>'}
+              </tr>`).join('') : '<tr><td colspan="6" class="text-muted text-center py-3">No health events</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -939,9 +999,9 @@
             <thead><tr><th>Date</th><th>Type</th><th>Expires</th><th>Notes</th><th>By</th></tr></thead>
             <tbody>${vacc.length ? vacc.map(v => `
               <tr>
-                <td>${v.vaccination_date}</td>
+                <td>${fmtDate(v.vaccination_date)}</td>
                 <td>${v.vaccine_type}</td>
-                <td>${v.expiration_date || '—'}</td>
+                <td>${fmtDate(v.expiration_date)}</td>
                 <td>${v.notes || '—'}</td>
                 <td class="text-muted">${v.recorded_by || '—'}</td>
               </tr>`).join('') : '<tr><td colspan="5" class="text-muted text-center py-3">No vaccinations</td></tr>'}
@@ -958,7 +1018,7 @@
             <thead><tr><th>Date</th><th>Litter ID</th><th>Kits</th><th>Stillborn</th><th>Father</th><th>Notes</th></tr></thead>
             <tbody>${litters.length ? litters.map(l => `
               <tr>
-                <td>${l.litter_date || '—'}</td>
+                <td>${fmtDate(l.litter_date)}</td>
                 <td>${l.litter_id || '—'}</td>
                 <td>${l.kit_count ?? '—'}</td>
                 <td>${l.stillborn ?? '—'}</td>
@@ -969,9 +1029,46 @@
           </table>
         </div>` : ''}
 
+        ${canUpdate() ? `
+        <div id="tMed" class="tab-pane">
+          <div class="d-flex mb-3">
+            <button class="btn btn-sm btn-primary ms-auto" onclick="openMedModal(${id}, ${f.medical_info_id})">
+              <i class="bi bi-pencil me-1"></i>Edit Medical Info
+            </button>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4"><span class="text-muted small d-block">Spayed / Castrated</span><strong>${f.castrated_or_spayed === 'y' ? '<span class=\'badge bg-success\'>Yes</span>' : '<span class=\'badge bg-secondary\'>No</span>'}</strong></div>
+            <div class="col-md-4"><span class="text-muted small d-block">Procedure Date</span><strong>${fmtDate(f.castration_or_spay_date)}</strong></div>
+            <div class="col-md-4"><span class="text-muted small d-block">Last Exam Date</span><strong>${fmtDate(f.last_exam_date)}</strong></div>
+            <div class="col-md-4"><span class="text-muted small d-block">Performed By</span><strong>${f.performed_by || '—'}</strong></div>
+            <div class="col-md-4"><span class="text-muted small d-block">Treatments</span><strong>${f.treatments || '—'}</strong></div>
+            <div class="col-md-4"><span class="text-muted small d-block">Orders</span><strong>${f.orders || '—'}</strong></div>
+            ${f.exam_log ? `<div class="col-12"><span class="text-muted small d-block">Exam Notes</span><div class="border rounded p-2 bg-light small">${f.exam_log}</div></div>` : ''}
+          </div>
+        </div>` : ''}
+
       </div>`;
             } catch (err) {
                 el.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+            }
+            // Render weight chart if canvas present
+            const canvas = document.getElementById('weightChart');
+            if (canvas) {
+                const weightData = (await api(`/ferrets/${id}/health`))
+                    .filter(h => h.event_type === 'weight' && h.weight)
+                    .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: weightData.map(h => fmtDate(h.event_date)),
+                        datasets: [{
+                            label: 'Weight (g)', data: weightData.map(h => h.weight),
+                            borderColor: '#0d6efd', backgroundColor: 'rgba(13,110,253,.08)',
+                            tension: .3, fill: true, pointRadius: 4
+                        }]
+                    },
+                    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+                });
             }
         }
 
@@ -1039,6 +1136,7 @@
         function openHealthModal(ferretId) {
             document.getElementById('heFerretId').value = ferretId;
             document.getElementById('heDate').value = today();
+            document.getElementById('heTime').value = nowTime();
             document.getElementById('heWeight').value = '';
             document.getElementById('heNotes').value = '';
             document.getElementById('heType').value = 'weight';
@@ -1053,13 +1151,18 @@
 
         async function submitHealthEvent() {
             const ferret_id = document.getElementById('heFerretId').value;
+            const wt = parseFloat(document.getElementById('heWeight').value);
+            if (isNaN(wt) && document.getElementById('heType').value === 'weight') {
+                return alert('Please enter a valid weight.');
+            }
             try {
                 await api('/health-events', {
                     method: 'POST', body: {
                         ferret_id: parseInt(ferret_id),
                         event_type: document.getElementById('heType').value,
-                        weight: document.getElementById('heWeight').value || null,
+                        weight: document.getElementById('heType').value === 'weight' ? wt : null,
                         event_date: document.getElementById('heDate').value,
+                        event_time: document.getElementById('heTime').value,
                         notes: document.getElementById('heNotes').value
                     }
                 });
@@ -1315,7 +1418,65 @@
 
         // ─── Helpers ───────────────────────────────────────────────────────────────
         function today() { return new Date().toISOString().split('T')[0]; }
-        function fmtDT(dt) { return dt ? new Date(dt).toLocaleString() : '—'; }
+        function nowTime() { return new Date().toTimeString().slice(0, 5); }
+
+        function fmtDate(d) {
+            if (!d) return '—';
+            // Handle both "2026-04-28" and full ISO strings
+            const s = d.toString().split('T')[0];
+            const [y, m, dy] = s.split('-');
+            return `${m}-${dy}-${y}`;
+        }
+
+        function fmtTime(dt) {
+            if (!dt) return '—';
+            const d = new Date(dt);
+            let h = d.getHours(), min = d.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${h}:${min.toString().padStart(2, '0')} ${ampm}`;
+        }
+
+        function fmtDT(dt) {
+            if (!dt) return '—';
+            return `${fmtDate(dt)} ${fmtTime(dt)}`;
+        }
+
+        // ─── Medical Info ──────────────────────────────────────────────────────────
+        function openMedModal(ferretId, medInfoId) {
+            document.getElementById('medFerretId').value = ferretId;
+            document.getElementById('medInfoId').value = medInfoId;
+            // Pre-fill from displayed data
+            const rows = document.querySelectorAll('#tMed .row .col-md-4');
+            // Just open blank — server will merge with existing
+            document.getElementById('medSpayed').value = 'n';
+            document.getElementById('medSpayDate').value = '';
+            document.getElementById('medExamDate').value = today();
+            document.getElementById('medPerformedBy').value = '';
+            document.getElementById('medExamLog').value = '';
+            document.getElementById('medOrders').value = '';
+            document.getElementById('medTreatments').value = '';
+            new bootstrap.Modal(document.getElementById('medModal')).show();
+        }
+
+        async function submitMedicalInfo() {
+            const ferretId = document.getElementById('medFerretId').value;
+            try {
+                await api(`/ferrets/${ferretId}/medical`, {
+                    method: 'PUT', body: {
+                        castrated_or_spayed: document.getElementById('medSpayed').value,
+                        castration_or_spay_date: document.getElementById('medSpayDate').value || null,
+                        last_exam_date: document.getElementById('medExamDate').value || null,
+                        performed_by: document.getElementById('medPerformedBy').value || null,
+                        exam_log: document.getElementById('medExamLog').value || null,
+                        orders: document.getElementById('medOrders').value || null,
+                        treatments: document.getElementById('medTreatments').value || null
+                    }
+                });
+                bootstrap.Modal.getInstance(document.getElementById('medModal')).hide();
+                loadFerretDetail(ferretId);
+            } catch (err) { alert(err.message); }
+        }
 
         // ─── Boot ──────────────────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', () => {

@@ -287,16 +287,39 @@ app.get('/api/ferrets/:id/health', authenticate, require_perm('read'), async (re
 // All roles except research can record health events
 app.post('/api/health-events', authenticate, require_perm('write'), async (req, res) => {
   if (req.user.role === 'research') return res.status(403).json({ error: 'Research role is read-only' });
-  const { ferret_id, event_type, weight, event_date, notes } = req.body;
+  const { ferret_id, event_type, weight, event_date, event_time, notes } = req.body;
+  const conn = await pool.getConnection();
   try {
-    const [r] = await pool.query(
+    await conn.beginTransaction();
+    const weightVal = (event_type === 'weight' && weight != null) ? parseFloat(weight) : null;
+    if (event_type === 'weight' && (isNaN(weightVal) || weightVal < 0 || weightVal > 9999.99)) {
+      await conn.rollback();
+      conn.release();
+      return res.status(400).json({ error: 'Weight must be between 0 and 9999.99 grams' });
+    }
+    // Combine date + time for notes context; store event_date as the date
+    const timeLabel = event_time ? ` at ${event_time}` : '';
+    const fullNotes = notes ? `[${event_date}${timeLabel}] ${notes}` : (event_time ? `[${event_date}${timeLabel}]` : null);
+
+    const [r] = await conn.query(
       'INSERT INTO health_event (ferret_id, event_type, weight, event_date, notes, recorded_by) VALUES (?,?,?,?,?,?)',
-      [ferret_id, event_type, weight || null, event_date, notes || null, req.user.username]
+      [ferret_id, event_type, weightVal, event_date, fullNotes, req.user.username]
     );
+    // Update ferret's current weight if this is a weight check
+    if (event_type === 'weight' && weightVal != null) {
+      await conn.query(
+        'UPDATE ferret_qr005 SET weight = ? WHERE Ferret_QR005_id = ?',
+        [Math.round(weightVal), ferret_id]
+      );
+    }
+    await conn.commit();
     await log_activity(req.user.user_id, 'CREATE', 'health_event', r.insertId, `${event_type} for ferret #${ferret_id}`);
     res.json({ id: r.insertId, message: 'Health event recorded' });
   } catch (err) {
+    await conn.rollback();
     res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
@@ -324,6 +347,36 @@ app.post('/api/vaccinations', authenticate, async (req, res) => {
       [ferret_id, vaccine_type, vaccination_date, expiration_date || null, notes || null, req.user.username]
     );
     res.json({ id: r.insertId, message: 'Vaccination recorded' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update medical info — admin and maternity only
+app.put('/api/ferrets/:id/medical', authenticate, require_perm('update'), async (req, res) => {
+  const { castrated_or_spayed, castration_or_spay_date, last_exam_date,
+    performed_by, exam_log, orders, treatments } = req.body;
+  try {
+    // Get the medical_info_id for this ferret
+    const [[ferret]] = await pool.query(
+      'SELECT medical_info_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
+    );
+    if (!ferret) return res.status(404).json({ error: 'Ferret not found' });
+
+    const sets = [], vals = [];
+    if (castrated_or_spayed !== undefined) { sets.push('castrated_or_spayed = ?'); vals.push(castrated_or_spayed); }
+    if (castration_or_spay_date !== undefined) { sets.push('castration_or_spay_date = ?'); vals.push(castration_or_spay_date || null); }
+    if (last_exam_date !== undefined) { sets.push('last_exam_date = ?'); vals.push(last_exam_date || null); }
+    if (performed_by !== undefined) { sets.push('performed_by = ?'); vals.push(performed_by || null); }
+    if (exam_log !== undefined) { sets.push('exam_log = ?'); vals.push(exam_log || null); }
+    if (orders !== undefined) { sets.push('orders = ?'); vals.push(orders || null); }
+    if (treatments !== undefined) { sets.push('treatments = ?'); vals.push(treatments || null); }
+
+    if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
+    vals.push(ferret.medical_info_id);
+    await pool.query(`UPDATE medical_info SET ${sets.join(', ')} WHERE medical_info_id = ?`, vals);
+    await log_activity(req.user.user_id, 'UPDATE', 'medical_info', ferret.medical_info_id, `Medical info updated for ferret #${req.params.id}`);
+    res.json({ message: 'Medical info updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
