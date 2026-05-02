@@ -26,12 +26,12 @@ const pool = mysql.createPool({
 
 // ─── Role Permission Map ──────────────────────────────────────────────────────
 //  admin     → full access (read, write, update, delete, manage_users)
-//  research  → read-only
+//  research  → everything admin can do except manage users
 //  maternity → read + write/update litter, estrus, health data; no delete
 //  caretaker → read (own view) + write health events + complete own assignments
 const PERMS = {
   admin: new Set(['read', 'write', 'update', 'delete', 'manage_users']),
-  research: new Set(['read']),
+  research: new Set(['read', 'write', 'update', 'delete']),
   maternity: new Set(['read', 'write', 'update']),
   caretaker: new Set(['read', 'write'])
 };
@@ -64,6 +64,11 @@ function require_perm(action) {
 
 function admin_only(req, res, next) {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  next();
+}
+
+function admin_or_research(req, res, next) {
+  if (!['admin', 'research'].includes(req.user.role)) return res.status(403).json({ error: 'Admin or Research access required' });
   next();
 }
 
@@ -178,14 +183,15 @@ app.get('/api/ferrets/:id', authenticate, require_perm('read'), async (req, res)
 
 // Create ferret — admin and maternity only; auto-creates required stub sub-records
 app.post('/api/ferrets', authenticate, async (req, res) => {
-  if (!['admin', 'maternity'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only admin and maternity roles can add ferrets' });
+  if (!['admin', 'maternity', 'research'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only admin, research, and maternity roles can add ferrets' });
   }
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
     // Stub records for required FKs (tables lack AUTO_INCREMENT in original schema — fixed by migrations.sql)
-    const [mi] = await conn.query('INSERT INTO medical_info () VALUES ()');
+    const [mi] = await conn.query('INSERT INTO medical_info (castrated_or_spayed, castration_or_spay_date) VALUES (?,?)',
+      [castrated_or_spayed || 'n', castration_or_spay_date || null]);
     const [ec] = await conn.query('INSERT INTO estrus_check_log () VALUES ()');
     const [fm] = await conn.query('INSERT INTO females_to_mate () VALUES ()');
     const [hl] = await conn.query('INSERT INTO health_log () VALUES ()');
@@ -193,7 +199,8 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
     const {
       ferret_name, animal_id, birth_date, weight = 0, description,
       address_id, supplier_id, mother_name, father_name,
-      next_rabies_vaccine_due, acquisition_by, photo_url
+      next_rabies_vaccine_due, acquisition_by, photo_url, sex,
+      castrated_or_spayed, castration_or_spay_date
     } = req.body;
 
     // If no address provided, find or create a default "Unassigned" address
@@ -225,12 +232,13 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
         (ferret_name, animal_id, birth_date, weight, description, address_id,
          medical_info_id, estrus_check_log_id, females_to_mate_id, health_log_id,
          supplier_id, mother_name, father_name, next_rabies_vaccine_due,
-         acquisition_by, photo_url, created_by, dead)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','0')
+         acquisition_by, photo_url, created_by, dead, sex)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','0',?)
     `, [ferret_name, animal_id || null, birth_date, weight, description || null,
       resolved_address_id, mi.insertId, ec.insertId, fm.insertId, hl.insertId,
       resolved_supplier_id, mother_name || null, father_name || null,
-      next_rabies_vaccine_due || null, acquisition_by || null, photo_url || null]);
+      next_rabies_vaccine_due || null, acquisition_by || null, photo_url || null,
+      sex || null]);
 
     await conn.commit();
     await log_activity(req.user.user_id, 'CREATE', 'ferret_qr005', r.insertId, `Created ferret: ${ferret_name}`);
@@ -245,7 +253,7 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
 
 // Update ferret — admin and maternity only
 app.put('/api/ferrets/:id', authenticate, require_perm('update'), async (req, res) => {
-  const allowed = ['ferret_name', 'weight', 'description', 'dead', 'next_rabies_vaccine_due', 'photo_url', 'acquisition_by'];
+  const allowed = ['ferret_name', 'weight', 'description', 'dead', 'next_rabies_vaccine_due', 'photo_url', 'acquisition_by', 'sex'];
   const sets = [], vals = [];
   for (const key of allowed) {
     if (req.body[key] !== undefined) { sets.push(`${key} = ?`); vals.push(req.body[key]); }
@@ -256,6 +264,19 @@ app.put('/api/ferrets/:id', authenticate, require_perm('update'), async (req, re
     await pool.query(`UPDATE ferret_qr005 SET ${sets.join(', ')} WHERE Ferret_QR005_id = ?`, vals);
     await log_activity(req.user.user_id, 'UPDATE', 'ferret_qr005', req.params.id, `Updated ferret #${req.params.id}`);
     res.json({ message: 'Ferret updated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Change ferret location — any authenticated role
+app.put('/api/ferrets/:id/location', authenticate, async (req, res) => {
+  const { address_id } = req.body;
+  if (!address_id) return res.status(400).json({ error: 'address_id required' });
+  try {
+    await pool.query('UPDATE ferret_qr005 SET address_id = ? WHERE Ferret_QR005_id = ?', [address_id, req.params.id]);
+    await log_activity(req.user.user_id, 'MOVE', 'ferret_qr005', req.params.id, `Moved ferret #${req.params.id} to address #${address_id}`);
+    res.json({ message: 'Location updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -337,18 +358,29 @@ app.get('/api/ferrets/:id/vaccinations', authenticate, require_perm('read'), asy
 
 // Admin and maternity can record vaccinations
 app.post('/api/vaccinations', authenticate, async (req, res) => {
-  if (!['admin', 'maternity'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only admin and maternity can record vaccinations' });
+  if (!['admin', 'maternity', 'research'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only admin, research, and maternity can record vaccinations' });
   }
-  const { ferret_id, vaccine_type, vaccination_date, expiration_date, notes } = req.body;
+  const { ferret_id, vaccine_type, vaccination_date, expiration_date, notes, next_rabies_due } = req.body;
+  const conn = await pool.getConnection();
   try {
-    const [r] = await pool.query(
+    await conn.beginTransaction();
+    const [r] = await conn.query(
       'INSERT INTO vaccination_event (ferret_id, vaccine_type, vaccination_date, expiration_date, notes, recorded_by) VALUES (?,?,?,?,?,?)',
       [ferret_id, vaccine_type, vaccination_date, expiration_date || null, notes || null, req.user.username]
     );
+    // Update next rabies due date on the ferret if provided
+    if (vaccine_type === 'rabies' && next_rabies_due) {
+      await conn.query('UPDATE ferret_qr005 SET next_rabies_vaccine_due = ? WHERE Ferret_QR005_id = ?',
+        [next_rabies_due, ferret_id]);
+    }
+    await conn.commit();
     res.json({ id: r.insertId, message: 'Vaccination recorded' });
   } catch (err) {
+    await conn.rollback();
     res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
@@ -395,8 +427,8 @@ app.get('/api/ferrets/:id/litters', authenticate, require_perm('read'), async (r
 });
 
 app.post('/api/litters', authenticate, async (req, res) => {
-  if (!['admin', 'maternity'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only admin and maternity can add litter records' });
+  if (!['admin', 'maternity', 'research'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only admin, research, and maternity can add litter records' });
   }
   const { Ferret_QR005_id, litter_id, litter_date, kit_count, stillborn, father, mother, anomalies_and_notes } = req.body;
   try {
@@ -429,9 +461,12 @@ app.get('/api/assignments', authenticate, require_perm('read'), async (req, res)
       LEFT JOIN ferret_qr005 f ON a.ferret_id = f.Ferret_QR005_id
     `;
     const params = [];
-    // Non-admin/research see only their own assignments
-    if (!['admin', 'research'].includes(req.user.role)) {
-      q += ' WHERE a.assigned_to = ?';
+    if (roleIs('admin', 'research', req.user.role)) {
+      // admin and research see all assignments
+    } else {
+      // other roles see only their own, and completed ones disappear after 1 week
+      q += ` WHERE a.assigned_to = ?
+             AND (a.completed = 0 OR a.completed_at > DATE_SUB(NOW(), INTERVAL 7 DAY))`;
       params.push(req.user.user_id);
     }
     q += ' ORDER BY a.completed ASC, a.due_date ASC';
@@ -442,7 +477,7 @@ app.get('/api/assignments', authenticate, require_perm('read'), async (req, res)
   }
 });
 
-app.post('/api/assignments', authenticate, admin_only, async (req, res) => {
+app.post('/api/assignments', authenticate, admin_or_research, async (req, res) => {
   const { assigned_to, assignment_type, address_id, ferret_id, description, due_date } = req.body;
   try {
     const [r] = await pool.query(
@@ -485,12 +520,13 @@ app.get('/api/suppliers', authenticate, require_perm('read'), async (req, res) =
   }
 });
 
-app.post('/api/suppliers', authenticate, admin_only, async (req, res) => {
+app.post('/api/suppliers', authenticate, admin_or_research, async (req, res) => {
   const { supplier_name, contact_info, supplier_address, supplier_phone_number } = req.body;
   try {
     const [r] = await pool.query(
       'INSERT INTO supplier (supplier_name, contact_info, supplier_address, supplier_phone_number) VALUES (?,?,?,?)',
-      [supplier_name, contact_info || null, supplier_address || null, supplier_phone_number || null]
+      [supplier_name, contact_info || null, supplier_address || null,
+        supplier_phone_number ? supplier_phone_number.toString().replace(/\D/g, '').substring(0, 15) : null]
     );
     res.json({ id: r.insertId, message: 'Supplier added' });
   } catch (err) {
@@ -507,7 +543,7 @@ app.get('/api/addresses', authenticate, require_perm('read'), async (req, res) =
   }
 });
 
-app.post('/api/addresses', authenticate, admin_only, async (req, res) => {
+app.post('/api/addresses', authenticate, admin_or_research, async (req, res) => {
   const { room_id, cage_address, room_lighting, maintenance } = req.body;
   try {
     const [r] = await pool.query(
@@ -520,8 +556,25 @@ app.post('/api/addresses', authenticate, admin_only, async (req, res) => {
   }
 });
 
+// Get ferrets for a specific address/room
+app.get('/api/addresses/:id/ferrets', authenticate, require_perm('read'), async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT f.Ferret_QR005_id AS id, f.ferret_name AS name, f.animal_id,
+             f.dead, f.sex, f.weight, f.birth_date, a.cage_address, a.room_id
+      FROM ferret_qr005 f
+      JOIN address a ON f.address_id = a.address_id
+      WHERE f.address_id = ? AND (f.dead = '0' OR f.dead IS NULL)
+      ORDER BY f.ferret_name
+    `, [req.params.id]);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── User Management (Admin Only) ─────────────────────────────────────────────
-app.get('/api/users', authenticate, admin_only, async (req, res) => {
+app.get('/api/users', authenticate, admin_or_research, async (req, res) => {
   try {
     const [rows] = await pool.query(
       'SELECT user_id, username, email, role, full_name, active, created_at, last_login FROM users ORDER BY username'
