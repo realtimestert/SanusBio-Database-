@@ -1,3 +1,4 @@
+<!-- SanusBio v1.2 | 2026-05-02 -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1174,11 +1175,16 @@
             const name = document.getElementById('fName').value.trim();
             const bd = document.getElementById('fBirthDate').value;
             if (!name || !bd) return alert('Name and birth date are required.');
+            const spayedVal = document.getElementById('fSpayed').value;
+            const spayedDate = document.getElementById('fSpayDate').value || null;
+            const sexVal = document.getElementById('fSex').value || null;
             try {
                 await api('/ferrets', {
                     method: 'POST', body: {
-                        ferret_name: name, animal_id: document.getElementById('fAnimalId').value || null,
-                        birth_date: bd, weight: parseInt(document.getElementById('fWeight').value) || 0,
+                        ferret_name: name,
+                        animal_id: document.getElementById('fAnimalId').value || null,
+                        birth_date: bd,
+                        weight: parseInt(document.getElementById('fWeight').value) || 0,
                         description: document.getElementById('fDesc').value || null,
                         address_id: document.getElementById('fAddrId').value || null,
                         supplier_id: document.getElementById('fSupplierId').value || null,
@@ -1187,9 +1193,9 @@
                         next_rabies_vaccine_due: document.getElementById('fVaccine').value || null,
                         acquisition_by: document.getElementById('fAcqBy').value || null,
                         photo_url: document.getElementById('fPhoto').value || null,
-                        sex: document.getElementById('fSex').value || null,
-                        castrated_or_spayed: document.getElementById('fSpayed').value,
-                        castration_or_spay_date: document.getElementById('fSpayDate').value || null
+                        sex: sexVal,
+                        castrated_or_spayed: spayedVal,
+                        castration_or_spay_date: spayedDate
                     }
                 });
                 bootstrap.Modal.getInstance(document.getElementById('ferretModal')).hide();

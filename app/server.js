@@ -1,3 +1,4 @@
+// SanusBio v1.3 | 2026-05-02
 require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -190,18 +191,18 @@ app.post('/api/ferrets', authenticate, async (req, res) => {
   try {
     await conn.beginTransaction();
     // Stub records for required FKs (tables lack AUTO_INCREMENT in original schema — fixed by migrations.sql)
-    const [mi] = await conn.query('INSERT INTO medical_info (castrated_or_spayed, castration_or_spay_date) VALUES (?,?)',
-      [castrated_or_spayed || 'n', castration_or_spay_date || null]);
-    const [ec] = await conn.query('INSERT INTO estrus_check_log () VALUES ()');
-    const [fm] = await conn.query('INSERT INTO females_to_mate () VALUES ()');
-    const [hl] = await conn.query('INSERT INTO health_log () VALUES ()');
-
     const {
       ferret_name, animal_id, birth_date, weight = 0, description,
       address_id, supplier_id, mother_name, father_name,
       next_rabies_vaccine_due, acquisition_by, photo_url, sex,
       castrated_or_spayed, castration_or_spay_date
     } = req.body;
+
+    const [mi] = await conn.query('INSERT INTO medical_info (castrated_or_spayed, castration_or_spay_date) VALUES (?,?)',
+      [castrated_or_spayed || 'n', castration_or_spay_date || null]);
+    const [ec] = await conn.query('INSERT INTO estrus_check_log () VALUES ()');
+    const [fm] = await conn.query('INSERT INTO females_to_mate () VALUES ()');
+    const [hl] = await conn.query('INSERT INTO health_log () VALUES ()');
 
     // If no address provided, find or create a default "Unassigned" address
     let resolved_address_id = address_id || null;
