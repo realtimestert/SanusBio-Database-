@@ -357,10 +357,10 @@ app.get('/api/ferrets/:id/vaccinations', authenticate, require_perm('read'), asy
   }
 });
 
-// Admin and maternity can record vaccinations
+// Admin and research can record vaccinations
 app.post('/api/vaccinations', authenticate, async (req, res) => {
-  if (!['admin', 'maternity', 'research'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only admin, research, and maternity can record vaccinations' });
+  if (!['admin', 'research'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only admin and research roles can record vaccinations' });
   }
   const { ferret_id, vaccine_type, vaccination_date, expiration_date, notes, next_rabies_due } = req.body;
   const conn = await pool.getConnection();
@@ -462,7 +462,7 @@ app.get('/api/assignments', authenticate, require_perm('read'), async (req, res)
       LEFT JOIN ferret_qr005 f ON a.ferret_id = f.Ferret_QR005_id
     `;
     const params = [];
-    if (roleIs('admin', 'research', req.user.role)) {
+    if (['admin', 'research'].includes(req.user.role)) {
       // admin and research see all assignments
     } else {
       // other roles see only their own, and completed ones disappear after 1 week
