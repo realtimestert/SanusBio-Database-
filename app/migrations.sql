@@ -26,8 +26,19 @@ ALTER TABLE `ferret_qr005`
   MODIFY COLUMN `Ferret_QR005_id` INT NOT NULL AUTO_INCREMENT;
 
 -- Add sex column
-ALTER TABLE `ferret_qr005`
-  ADD COLUMN IF NOT EXISTS `sex` ENUM('male','female') NULL DEFAULT NULL;
+-- Add sex column (safe version for MySQL 8.0)
+SET @dbname = 'sanusbio';
+SET @tablename = 'ferret_qr005';
+SET @columnname = 'sex';
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = @dbname AND TABLE_NAME = @tablename AND COLUMN_NAME = @columnname) > 0,
+  'SELECT 1',
+  'ALTER TABLE ferret_qr005 ADD COLUMN sex ENUM(''male'',''female'') NULL DEFAULT NULL'
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Fix supplier phone: INT overflows on 10-digit numbers
 ALTER TABLE `supplier`
