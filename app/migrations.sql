@@ -25,7 +25,6 @@ ALTER TABLE `health_log`
 ALTER TABLE `ferret_qr005`
   MODIFY COLUMN `Ferret_QR005_id` INT NOT NULL AUTO_INCREMENT;
 
--- Add sex column
 -- Add sex column (safe version for MySQL 8.0)
 SET @dbname = 'sanusbio';
 SET @tablename = 'ferret_qr005';
