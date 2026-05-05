@@ -141,7 +141,7 @@ app.get('/api/ferrets', authenticate, require_perm('read'), async (req, res) => 
       SELECT f.Ferret_QR005_id AS id, f.ferret_name AS name, f.animal_id,
              f.birth_date, f.weight, f.dead, f.description, f.litter_id,
              f.photo_url, f.mother_name, f.father_name, f.acquisition_by,
-             f.next_rabies_vaccine_due,
+             f.next_rabies_vaccine_due, f.sex,
              a.cage_address, a.room_id,
              s.supplier_name
       FROM ferret_qr005 f
@@ -165,7 +165,7 @@ app.get('/api/ferrets/:id', authenticate, require_perm('read'), async (req, res)
              mi.castrated_or_spayed, mi.castration_or_spay_date,
              mi.dead AS med_dead, mi.date_of_death, mi.cause_of_death,
              mi.treatments, mi.last_exam_date, mi.orders, mi.performed_by,
-             mi.weight_loss_or_gain, mi.exam_log,
+             mi.weight_loss_or_gain, mi.exam_log, mi.surgical_procedure_log,
              ecl.estrus_status, ecl.in_estrus, ecl.vulva_description,
              ecl.formed_observation, ecl.comments AS estrus_comments
       FROM ferret_qr005 f
@@ -357,10 +357,10 @@ app.get('/api/ferrets/:id/vaccinations', authenticate, require_perm('read'), asy
   }
 });
 
-// Admin and research can record vaccinations
+// Admin and maternity can record vaccinations
 app.post('/api/vaccinations', authenticate, async (req, res) => {
-  if (!['admin', 'research'].includes(req.user.role)) {
-    return res.status(403).json({ error: 'Only admin and research roles can record vaccinations' });
+  if (!['admin', 'maternity', 'research'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Only admin, research, and maternity can record vaccinations' });
   }
   const { ferret_id, vaccine_type, vaccination_date, expiration_date, notes, next_rabies_due } = req.body;
   const conn = await pool.getConnection();
@@ -404,12 +404,42 @@ app.put('/api/ferrets/:id/medical', authenticate, require_perm('update'), async 
     if (exam_log !== undefined) { sets.push('exam_log = ?'); vals.push(exam_log || null); }
     if (orders !== undefined) { sets.push('orders = ?'); vals.push(orders || null); }
     if (treatments !== undefined) { sets.push('treatments = ?'); vals.push(treatments || null); }
-
     if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
     vals.push(ferret.medical_info_id);
     await pool.query(`UPDATE medical_info SET ${sets.join(', ')} WHERE medical_info_id = ?`, vals);
     await log_activity(req.user.user_id, 'UPDATE', 'medical_info', ferret.medical_info_id, `Medical info updated for ferret #${req.params.id}`);
     res.json({ message: 'Medical info updated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Log a surgical procedure — appends an entry to surgical_procedure_log
+app.post('/api/ferrets/:id/procedure', authenticate, require_perm('update'), async (req, res) => {
+  const { procedure_name, procedure_date, performed_by, notes } = req.body;
+  if (!procedure_name || !procedure_date) {
+    return res.status(400).json({ error: 'procedure_name and procedure_date are required' });
+  }
+  try {
+    const [[ferret]] = await pool.query(
+      'SELECT medical_info_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
+    );
+    if (!ferret) return res.status(404).json({ error: 'Ferret not found' });
+
+    const [[mi]] = await pool.query(
+      'SELECT surgical_procedure_log FROM medical_info WHERE medical_info_id = ?', [ferret.medical_info_id]
+    );
+    const entry = `[${procedure_date}] ${procedure_name}${performed_by ? ' — ' + performed_by : ''}${notes ? ': ' + notes : ''}`;
+    const updated = mi.surgical_procedure_log
+      ? mi.surgical_procedure_log + '\n' + entry
+      : entry;
+    await pool.query(
+      'UPDATE medical_info SET surgical_procedure_log = ? WHERE medical_info_id = ?',
+      [updated, ferret.medical_info_id]
+    );
+    await log_activity(req.user.user_id, 'PROCEDURE', 'medical_info', ferret.medical_info_id,
+      `Logged procedure for ferret #${req.params.id}: ${procedure_name}`);
+    res.json({ message: 'Procedure logged' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -462,7 +492,7 @@ app.get('/api/assignments', authenticate, require_perm('read'), async (req, res)
       LEFT JOIN ferret_qr005 f ON a.ferret_id = f.Ferret_QR005_id
     `;
     const params = [];
-    if (['admin', 'research'].includes(req.user.role)) {
+    if (roleIs('admin', 'research', req.user.role)) {
       // admin and research see all assignments
     } else {
       // other roles see only their own, and completed ones disappear after 1 week
