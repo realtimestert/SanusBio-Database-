@@ -415,9 +415,9 @@ app.put('/api/ferrets/:id/medical', authenticate, require_perm('update'), async 
   const { castrated_or_spayed, castration_or_spay_date, last_exam_date,
     performed_by, exam_log, orders, treatments } = req.body;
   try {
-    // Get the medical_info_id for this ferret
+    // Get the medical_info_id, name and animal_id for this ferret
     const [[ferret]] = await pool.query(
-      'SELECT medical_info_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
+      'SELECT medical_info_id, ferret_name, animal_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
     );
     if (!ferret) return res.status(404).json({ error: 'Ferret not found' });
 
@@ -432,7 +432,8 @@ app.put('/api/ferrets/:id/medical', authenticate, require_perm('update'), async 
     if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
     vals.push(ferret.medical_info_id);
     await pool.query(`UPDATE medical_info SET ${sets.join(', ')} WHERE medical_info_id = ?`, vals);
-    await log_activity(req.user.user_id, 'UPDATE', 'medical_info', ferret.medical_info_id, `Medical info updated for ferret #${req.params.id}`);
+    await log_activity(req.user.user_id, 'UPDATE', 'medical_info', ferret.medical_info_id,
+      `Medical info updated for ${ferret.ferret_name}${ferret.animal_id ? ' (ID: ' + ferret.animal_id + ')' : ''}`);
     res.json({ message: 'Medical info updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -447,7 +448,7 @@ app.post('/api/ferrets/:id/procedure', authenticate, require_perm('update'), asy
   }
   try {
     const [[ferret]] = await pool.query(
-      'SELECT medical_info_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
+      'SELECT medical_info_id, ferret_name, animal_id FROM ferret_qr005 WHERE Ferret_QR005_id = ?', [req.params.id]
     );
     if (!ferret) return res.status(404).json({ error: 'Ferret not found' });
 
@@ -463,7 +464,7 @@ app.post('/api/ferrets/:id/procedure', authenticate, require_perm('update'), asy
       [updated, ferret.medical_info_id]
     );
     await log_activity(req.user.user_id, 'PROCEDURE', 'medical_info', ferret.medical_info_id,
-      `Logged procedure for ferret #${req.params.id}: ${procedure_name}`);
+      `Procedure logged for ${ferret.ferret_name}${ferret.animal_id ? ' (ID: ' + ferret.animal_id + ')' : ''}: ${procedure_name}`);
     res.json({ message: 'Procedure logged' });
   } catch (err) {
     res.status(500).json({ error: err.message });
