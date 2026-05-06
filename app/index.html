@@ -890,7 +890,7 @@
             const roleColors = { admin: 'danger', research: 'primary', maternity: 'success', caretaker: 'secondary' };
             document.getElementById('userInfo').innerHTML =
                 `<div class="text-white fw-semibold small">${USER.full_name || USER.username}</div>
-     <span class="badge role-${USER.role} role-badge">${USER.role}</span>`;
+             <span class="badge role-${USER.role} role-badge">${USER.role}</span>`;
 
             if (USER.role !== 'admin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
@@ -929,12 +929,12 @@
                     { label: 'Overdue Tasks', val: d.overdue, icon: 'bi-exclamation-circle', color: 'danger' },
                     { label: 'Vaccines Due 30d', val: d.vacc_due, icon: 'bi-syringe', color: 'warning' }
                 ].map(s => `
-      <div class="col-md-4 col-6">
+              <div class="col-md-4 col-6">
         <div class="card stat-card p-3 d-flex flex-row align-items-center gap-3">
           <div class="icon bg-${s.color} bg-opacity-10 text-${s.color}"><i class="bi ${s.icon}"></i></div>
           <div><div class="fs-3 fw-bold">${s.val}</div><div class="text-muted small">${s.label}</div></div>
         </div>
-      </div>`).join('');
+              </div>`).join('');
 
                 const activityCard = document.getElementById('dashActivityCard');
                 if (roleIs('admin')) {
@@ -1025,16 +1025,17 @@
             const el = document.getElementById('ferretDetail');
             el.innerHTML = '<div class="text-center py-5 text-muted"><div class="spinner-border" role="status"></div></div>';
             try {
-                const [f, health, vacc, litters] = await Promise.all([
+                const [f, health, vacc, litters, history] = await Promise.all([
                     api(`/ferrets/${id}`),
                     api(`/ferrets/${id}/health`),
                     api(`/ferrets/${id}/vaccinations`),
-                    api(`/ferrets/${id}/litters`)
+                    api(`/ferrets/${id}/litters`),
+                    api(`/ferrets/${id}/history`)
                 ]);
                 const isAdmin = roleIs('admin');
                 const isMat = roleIs('admin', 'maternity');
                 el.innerHTML = `
-      <div class="row g-3 mb-3">
+              <div class="row g-3 mb-3">
         <div class="col-md-3">
           ${f.photo_url
                         ? `<img src="${f.photo_url}" class="img-fluid rounded-3 shadow-sm w-100" style="max-height:220px;object-fit:cover">`
@@ -1070,15 +1071,16 @@
             ${f.orders ? `<div class="col-12"><span class="text-muted">Orders</span><br><strong>${f.orders}</strong></div>` : ''}
           </div>
         </div>
-      </div>
+              </div>
 
-      <ul class="nav nav-tabs mb-3" role="tablist">
+              <ul class="nav nav-tabs mb-3" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tHealth">Health Events</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tVacc">Vaccinations</button></li>
         ${isMat ? `<li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tLitter">Litter Logs</button></li>` : ''}
         ${canUpdate() ? `<li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tMed">Medical Info</button></li>` : ''}
-      </ul>
-      <div class="tab-content">
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tHistory"><i class="bi bi-clock-history me-1"></i>History</button></li>
+              </ul>
+              <div class="tab-content">
 
         <div id="tHealth" class="tab-pane active">
           <div class="d-flex mb-2">
@@ -1174,7 +1176,42 @@
                             : `<p class="text-muted small">No procedures logged yet.</p>`}
         </div>` : ''}
 
-      </div>`;
+        <div id="tHistory" class="tab-pane">
+          ${history.length ? `
+          <div class="timeline mt-2">
+            ${history.map(e => {
+                                const catMap = {
+                                    health: { color: 'info', icon: 'bi-heart-pulse' },
+                                    move: { color: 'primary', icon: 'bi-geo-alt' },
+                                    mating: { color: 'success', icon: 'bi-gender-ambiguous' }
+                                };
+                                const cat = catMap[e.event_category] || { color: 'secondary', icon: 'bi-circle' };
+                                const subtypeLabel = e.subtype === 'location_change' ? 'Room Move'
+                                    : e.subtype === 'mating' ? 'Mating'
+                                        : e.subtype ? e.subtype.replace('_', ' ') : e.event_category;
+                                return `
+              <div class="d-flex gap-3 mb-3">
+                <div class="d-flex flex-column align-items-center" style="min-width:36px">
+                  <div class="rounded-circle bg-${cat.color} bg-opacity-15 text-${cat.color} d-flex align-items-center justify-content-center" style="width:36px;height:36px;flex-shrink:0">
+                    <i class="bi ${cat.icon}"></i>
+                  </div>
+                  <div class="border-start flex-grow-1 mt-1" style="min-height:16px;opacity:.2"></div>
+                </div>
+                <div class="flex-grow-1 pb-2">
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-${cat.color} bg-opacity-75 small text-capitalize">${subtypeLabel}</span>
+                    <span class="text-muted small">${fmtDate(e.event_date)}</span>
+                    ${e.actor ? `<span class="text-muted small ms-auto"><i class="bi bi-person me-1"></i>${e.actor}</span>` : ''}
+                  </div>
+                  ${e.weight ? `<div class="small mt-1">Weight: <strong>${e.weight} g</strong></div>` : ''}
+                  ${e.notes ? `<div class="small text-muted mt-1" style="white-space:pre-wrap">${e.notes}</div>` : ''}
+                </div>
+              </div>`;
+                            }).join('')}
+          </div>` : '<p class="text-muted small mt-2">No history recorded yet.</p>'}
+        </div>
+
+              </div>`;
             } catch (err) {
                 el.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
             }
@@ -1367,7 +1404,7 @@
                             ? `<span class="badge bg-success">Completed</span>`
                             : `<span class="badge bg-warning text-dark">Pending</span>`}</td>
         <td>${canComplete ? `<button class="btn btn-sm btn-outline-success" onclick="completeAssign(${a.assignment_id})"><i class="bi bi-check2"></i></button>` : ''}</td>
-      </tr>`;
+              </tr>`;
                 }).join('');
             } catch (err) { console.error(err); }
         }
@@ -1411,7 +1448,7 @@
                 const data = await api('/users');
                 const roleColors = { admin: 'danger', research: 'primary', maternity: 'success', caretaker: 'secondary' };
                 document.getElementById('userTable').innerHTML = data.map(u => `
-      <tr>
+              <tr>
         <td><strong>${u.username}</strong></td>
         <td>${u.full_name || '—'}</td>
         <td>${u.email}</td>
@@ -1421,7 +1458,7 @@
                         : '<span class="badge bg-secondary-subtle text-secondary border">Inactive</span>'}</td>
         <td class="text-muted small">${u.last_login ? fmtDT(u.last_login) : 'Never'}</td>
         <td><button class="btn btn-sm btn-outline-primary" onclick="openEditUser(${u.user_id})"><i class="bi bi-pencil"></i></button></td>
-      </tr>`).join('');
+              </tr>`).join('');
             } catch (err) { console.error(err); }
         }
 
@@ -1490,13 +1527,13 @@
             try {
                 const data = await api('/activity-log');
                 document.getElementById('actTable').innerHTML = data.map(a => `
-      <tr>
+              <tr>
         <td class="text-muted small">${fmtDT(a.created_at)}</td>
         <td><strong>${a.username}</strong></td>
         <td><span class="badge bg-secondary action-type">${a.action}</span></td>
         <td class="text-muted small">${a.table_name || '—'}</td>
         <td class="small">${a.details || '—'}</td>
-      </tr>`).join('') || '<tr><td colspan="5" class="text-muted text-center py-4">No activity</td></tr>';
+              </tr>`).join('') || '<tr><td colspan="5" class="text-muted text-center py-4">No activity</td></tr>';
             } catch (err) { console.error(err); }
         }
 
@@ -1545,7 +1582,7 @@
                     return;
                 }
                 accordion.innerHTML = addresses.map((a, i) => `
-      <div class="accordion-item">
+              <div class="accordion-item">
         <h2 class="accordion-header">
           <button class="accordion-button ${i === 0 ? '' : 'collapsed'}" type="button"
             data-bs-toggle="collapse" data-bs-target="#loc${a.address_id}">
@@ -1558,7 +1595,7 @@
             <div id="locFerrets${a.address_id}" class="text-muted small">Loading…</div>
           </div>
         </div>
-      </div>`).join('');
+              </div>`).join('');
 
                 // Load ferrets for each location
                 for (const a of addresses) {

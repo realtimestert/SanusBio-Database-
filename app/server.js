@@ -275,8 +275,33 @@ app.put('/api/ferrets/:id/location', authenticate, async (req, res) => {
   const { address_id } = req.body;
   if (!address_id) return res.status(400).json({ error: 'address_id required' });
   try {
+    // Fetch ferret name + current address before moving
+    const [[ferret]] = await pool.query(`
+      SELECT f.ferret_name, a.room_id AS old_room, a.cage_address AS old_cage
+      FROM ferret_qr005 f
+      LEFT JOIN address a ON f.address_id = a.address_id
+      WHERE f.Ferret_QR005_id = ?
+    `, [req.params.id]);
+
+    // Fetch the destination address
+    const [[newAddr]] = await pool.query(
+      'SELECT room_id, cage_address FROM address WHERE address_id = ?', [address_id]
+    );
+
     await pool.query('UPDATE ferret_qr005 SET address_id = ? WHERE Ferret_QR005_id = ?', [address_id, req.params.id]);
-    await log_activity(req.user.user_id, 'MOVE', 'ferret_qr005', req.params.id, `Moved ferret #${req.params.id} to address #${address_id}`);
+
+    const fromLabel = ferret?.old_room != null
+      ? `Room ${ferret.old_room}${ferret.old_cage ? ' - Cage ' + ferret.old_cage : ''}`
+      : 'Unknown';
+    const toLabel = newAddr
+      ? `Room ${newAddr.room_id}${newAddr.cage_address ? ' - Cage ' + newAddr.cage_address : ''}`
+      : `Address #${address_id}`;
+    const ferretName = ferret?.ferret_name || `#${req.params.id}`;
+
+    await log_activity(
+      req.user.user_id, 'MOVE', 'ferret_qr005', req.params.id,
+      `${ferretName} moved from ${fromLabel} to ${toLabel}`
+    );
     res.json({ message: 'Location updated' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -440,6 +465,73 @@ app.post('/api/ferrets/:id/procedure', authenticate, require_perm('update'), asy
     await log_activity(req.user.user_id, 'PROCEDURE', 'medical_info', ferret.medical_info_id,
       `Logged procedure for ferret #${req.params.id}: ${procedure_name}`);
     res.json({ message: 'Procedure logged' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Ferret History (all roles) ───────────────────────────────────────────────
+app.get('/api/ferrets/:id/history', authenticate, require_perm('read'), async (req, res) => {
+  const ferretId = req.params.id;
+  try {
+    // Health events
+    const [healthRows] = await pool.query(`
+      SELECT
+        'health' AS event_category,
+        event_date AS event_date,
+        created_at,
+        event_type AS subtype,
+        weight,
+        notes,
+        recorded_by AS actor
+      FROM health_event
+      WHERE ferret_id = ?
+    `, [ferretId]);
+
+    // Move events from activity log
+    const [moveRows] = await pool.query(`
+      SELECT
+        'move' AS event_category,
+        DATE(al.created_at) AS event_date,
+        al.created_at,
+        'location_change' AS subtype,
+        NULL AS weight,
+        details AS notes,
+        u.username AS actor
+      FROM activity_log al
+      JOIN users u ON al.user_id = u.user_id
+      WHERE al.action = 'MOVE' AND al.record_id = ?
+    `, [ferretId]);
+
+    // Mating records
+    const [matingRows] = await pool.query(`
+      SELECT
+        'mating' AS event_category,
+        COALESCE(last_mating_date, confirmed_estrus_start, created) AS event_date,
+        NULL AS created_at,
+        'mating' AS subtype,
+        NULL AS weight,
+        CONCAT_WS(' | ',
+          IF(confirmed_estrus_start IS NOT NULL, CONCAT('Estrus: ', confirmed_estrus_start), NULL),
+          IF(last_mating_date IS NOT NULL, CONCAT('Mated: ', last_mating_date), NULL),
+          IF(male_cage_mates IS NOT NULL AND male_cage_mates != '', CONCAT('Male: ', male_cage_mates), NULL),
+          IF(mating_history IS NOT NULL AND mating_history != '', mating_history, NULL)
+        ) AS notes,
+        created_by AS actor
+      FROM \`estrus_&_mating_summary\`
+      WHERE Ferret_QR005_id = ?
+    `, [ferretId]);
+
+    // Merge and sort descending by date
+    const all = [...healthRows, ...moveRows, ...matingRows]
+      .filter(e => e.event_date)
+      .sort((a, b) => {
+        const da = new Date(a.created_at || a.event_date);
+        const db = new Date(b.created_at || b.event_date);
+        return db - da;
+      });
+
+    res.json(all);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
